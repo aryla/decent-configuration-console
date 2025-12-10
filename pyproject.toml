@@ -1,0 +1,16 @@
+[project]
+name = "decent-configuration-console"
+version = "0.1.0"
+description = "Unofficial configuration app for the BlueCombo Halfpad"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pyside6>=6.10.1",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "single"
+line-ending = "lf"

@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>ui/Main.qml</file>
+    <file>ui/PanelView.qml</file>
+    <file>ui/SensorView.qml</file>
+</qresource>
+<qresource prefix="/">
+    <file>qtquickcontrols2.conf</file>
+</qresource>
+</RCC>
