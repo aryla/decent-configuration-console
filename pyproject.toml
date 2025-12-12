@@ -10,6 +10,7 @@ dependencies = [
 
 [tool.ruff]
 line-length = 100
+ignore = ["E701"]
 
 [tool.ruff.format]
 quote-style = "single"

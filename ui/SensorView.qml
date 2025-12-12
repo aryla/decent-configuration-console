@@ -24,7 +24,7 @@ Item {
         anchors.left: bar.left
         width: root.sensor.range.min * bar.width
         color: "#777"
-        opacity: 0.5
+        opacity: 0.8
     }
 
     Rectangle {
@@ -33,7 +33,7 @@ Item {
         anchors.right: bar.right
         width: (1 - root.sensor.range.max) * bar.width
         color: "#777"
-        opacity: 0.5
+        opacity: 0.8
     }
 
     RangeSlider {

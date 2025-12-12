@@ -1,62 +1,43 @@
 import sys
 
-from PySide6.QtCore import QObject, QThread, QTimer, Slot
+from PySide6.QtCore import QMetaObject, Qt
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
 import rc_resources  # noqa: F401
-from model import Model  # noqa: F401
-from util import SlotProxy
-
-
-class Pad(QObject):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.poll_timer = QTimer(self)
-        self.poll_timer.setInterval(1000)
-        self.poll_timer.timeout.connect(self._poll)
-
-        self._thread = QThread(self)
-        self._thread.setObjectName('Pad thread')
-        self._thread.finished.connect(self.deleteLater)
-        self.moveToThread(self._thread)
-        self._thread.start()
-
-    @Slot()
-    def start_polling(self):
-        print('start polling on ', QThread.currentThread().objectName())
-        self.poll_timer.start()
-
-    @Slot()
-    def stop_polling(self):
-        print('stop polling on ', QThread.currentThread().objectName())
-        self.poll_timer.stop()
-
-    @Slot()
-    def stop(self):
-        print('stop on ', QThread.currentThread().objectName())
-        self._thread.quit()
-
-    def _poll(self):
-        print('poll on ', QThread.currentThread().objectName())
-        print('Hello from pad')
+from datatypes import PanelId
+from model import Model
+from pad import Pad
+from usb import Usb
 
 
 def main():
     app = QGuiApplication(sys.argv)
-    engine = QQmlApplicationEngine()
-    engine.load(':/ui/Main.qml')
-
-    if not engine.rootObjects():
-        sys.exit(-1)
 
     pad = Pad()
-    proxy = SlotProxy(pad)
-    proxy.start_polling()
+    model = Model()  # pyright: ignore[reportCallIssue]
+
+    pad.alias.connect(model.pad_alias)
+    pad.connected.connect(model.pad_connected)
+    pad.disconnected.connect(model.pad_disconnected)
+    pad.hidmode.connect(model.pad_hidmode)
+    pad.profile.connect(model.pad_profile)
+    pad.readings.connect(model.pad_readings)
+    pad.ranges.connect(model.pad_ranges)
+
+    engine = QQmlApplicationEngine()
+    engine.setInitialProperties({'model': model})
+    engine.load(':/ui/Main.qml')
+    if not engine.rootObjects():
+        return -1
+
+    QMetaObject.invokeMethod(pad, 'connect', Qt.ConnectionType.QueuedConnection)  # pyright: ignore[reportCallIssue, reportArgumentType]
+
     try:
         return app.exec()
     finally:
-        proxy.stop()
+        QMetaObject.invokeMethod(pad, 'quit', Qt.ConnectionType.QueuedConnection)  # pyright: ignore[reportCallIssue, reportArgumentType]
+        del engine
 
 
 if __name__ == '__main__':

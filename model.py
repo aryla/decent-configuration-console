@@ -1,7 +1,9 @@
 import math
 
-from PySide6.QtCore import Property, QObject, Signal
+from PySide6.QtCore import Property, QObject, Signal, Slot
 from PySide6.QtQml import QmlElement
+
+from datatypes import HidMode, ProfileId, Readings, SensorRange, SensorRanges
 
 QML_IMPORT_NAME = 'Model'
 QML_IMPORT_MAJOR_VERSION = 1
@@ -56,6 +58,13 @@ class Range(QObject):
     def max_limit(self):
         return self._to_unit_range(self._min + self._width_limit)
 
+    @Slot()
+    def pad_range(self, range: SensorRange):
+        self._min = range.min
+        self._max = range.max
+        self.min_changed.emit()
+        self.max_changed.emit()
+
 
 @QmlElement
 class Sensor(QObject):
@@ -79,6 +88,11 @@ class Sensor(QObject):
     def range(self):
         return self._range
 
+    @Slot(int)
+    def pad_level(self, level: int):
+        self._level = level / 4095.0
+        self.level_changed.emit()
+
 
 @QmlElement
 class Panel(QObject):
@@ -87,7 +101,7 @@ class Panel(QObject):
     def __init__(self, parent, name: str, sensor1_name: str, sensor2_name: str, flipped: bool):
         super().__init__(parent)
         self._name = name
-        self._sensors = [Sensor(self, sensor1_name), Sensor(self, sensor2_name)]
+        self._sensors = (Sensor(self, sensor1_name), Sensor(self, sensor2_name))
         self._flipped = flipped
         self._sensitivity = 0
 
@@ -123,12 +137,12 @@ class Model(QObject):
         super().__init__(parent)
         self._alias = 'Unnamed'
         self._profile = 1
-        self._panels = [
+        self._panels = (
             Panel(self, 'Left', 'Back', 'Front', flipped=True),  # pyright: ignore[reportCallIssue]
             Panel(self, 'Down', 'Right', 'Left', flipped=True),  # pyright: ignore[reportCallIssue]
             Panel(self, 'Up', 'Left', 'Right', flipped=False),  # pyright: ignore[reportCallIssue]
             Panel(self, 'Right', 'Front', 'Back', flipped=False),  # pyright: ignore[reportCallIssue]
-        ]
+        )
 
     @Property(str, notify=alias_changed, final=True)
     def alias(self):  # pyright: ignore[reportRedeclaration]
@@ -165,3 +179,37 @@ class Model(QObject):
     @Property(Panel, constant=True, final=True)
     def panel3(self):
         return self._panels[3]
+
+    @Slot(str)
+    def pad_alias(self, alias: str):
+        self._alias = alias
+        self.alias_changed.emit()
+
+    @Slot()
+    def pad_connected(self):
+        pass
+
+    @Slot()
+    def pad_disconnected(self):
+        pass
+
+    @Slot(HidMode)
+    def pad_hidmode(self, mode: HidMode):
+        pass
+
+    @Slot(ProfileId)
+    def pad_profile(self, profile: ProfileId):
+        self._profile = profile.value
+        self.profile_changed.emit()
+
+    @Slot(Readings)
+    def pad_readings(self, readings: Readings):
+        panel = self._panels[readings.panel.value]
+        for i in range(2):
+            panel._sensors[i].pad_level(readings.sensors[i])
+
+    @Slot(SensorRanges)
+    def pad_ranges(self, ranges: SensorRanges):
+        panel = self._panels[ranges.panel.value]
+        for i in range(2):
+            panel._sensors[i]._range.pad_range(ranges.ranges[i])

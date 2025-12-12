@@ -11,9 +11,7 @@ ApplicationWindow {
     visible: true
     title: "Decent Configuration Console"
 
-    Model {
-        id: model
-    }
+    property Model model
 
     header: ToolBar {}
 
@@ -22,9 +20,9 @@ ApplicationWindow {
         text: "Profile 1"
         shortcut: "Ctrl+1"
         checkable: true
-        checked: model.profile == 1
+        checked: root.model.profile == 1
         onTriggered: {
-            model.profile = 1;
+            root.model.profile = 1;
         }
     }
 
@@ -33,9 +31,9 @@ ApplicationWindow {
         text: "Profile 2"
         shortcut: "Ctrl+2"
         checkable: true
-        checked: model.profile == 2
+        checked: root.model.profile == 2
         onTriggered: {
-            model.profile = 2;
+            root.model.profile = 2;
         }
     }
 
@@ -44,9 +42,9 @@ ApplicationWindow {
         text: "Profile 3"
         shortcut: "Ctrl+3"
         checkable: true
-        checked: model.profile == 3
+        checked: root.model.profile == 3
         onTriggered: {
-            model.profile = 3;
+            root.model.profile = 3;
         }
     }
 
@@ -55,9 +53,9 @@ ApplicationWindow {
         text: "Profile 4"
         shortcut: "Ctrl+4"
         checkable: true
-        checked: model.profile == 4
+        checked: root.model.profile == 4
         onTriggered: {
-            model.profile = 4;
+            root.model.profile = 4;
         }
     }
 
@@ -99,28 +97,28 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                panel: model.panel0
+                panel: root.model.panel0
             }
 
             PanelView {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                panel: model.panel1
+                panel: root.model.panel1
             }
 
             PanelView {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                panel: model.panel2
+                panel: root.model.panel2
             }
 
             PanelView {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                panel: model.panel3
+                panel: root.model.panel3
             }
         }
     }
