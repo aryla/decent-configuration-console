@@ -15,6 +15,13 @@ ApplicationWindow {
 
     header: ToolBar {}
 
+    footer: ToolBar {
+        Text {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+            text: root.model.message
+        }
+    }
+
     Action {
         id: selectProfile1
         text: "Profile 1"

@@ -10,5 +10,8 @@ ui_%.py: %.ui
 rc_%.py: %.qrc qtquickcontrols2.conf $(QML)
 	uv run -- pyside6-rcc $< -o $@
 
-.PHONY: all
+run: all
+	uv run -- main.py
+
+.PHONY: all run
 .DEFAULT_GOAL: all

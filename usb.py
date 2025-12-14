@@ -16,11 +16,12 @@ from ctypes import (
     pointer,
 )
 from datetime import timedelta
+from typing import Sequence
 
 
 class Error(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    def __init__(self, *args):
+        super().__init__(*args)
 
     @staticmethod
     def _from_code(libusb: CDLL, code: int):
@@ -74,7 +75,6 @@ class Usb:
         self.device = None
         self.libusb = CDLL('libusb-1.0.so.0')
         Usb._setup_types(self.libusb)
-
         self.libusb.libusb_init(pointer(self.context))
 
     def connect(self):
@@ -101,17 +101,20 @@ class Usb:
             raise OtherError('Wrong configuration after claiming interface.')
 
     def disconnect(self):
-        if self.device is not None:
-            try:
-                self.libusb.libusb_release_interface(self.device, self.INTERFACE)
-            except Error:
-                pass
-            self.libusb.libusb_close(self.device)
-            self.device = None
+        if self.device is None:
+            return
+        try:
+            self.libusb.libusb_release_interface(self.device, self.INTERFACE)
+        except Error:
+            pass
+        self.libusb.libusb_close(self.device)
+        self.device = None
 
     def bulk_write(self, data: bytes, timeout: timedelta | None = None) -> int:
-        buffer = create_string_buffer(data, len(data) + 1)
-        buffer[-1] = self._checksum(data)
+        if self.device is None:
+            raise NoDeviceError('No pad connected.')
+        buffer = create_string_buffer(data, 32)
+        buffer[-1] = self._checksum(buffer[:-1])
         timeout_ms = 0 if timeout is None else int(1000 * timeout.total_seconds())
         transferred = c_int(-1)
         self.libusb.libusb_bulk_transfer(
@@ -126,10 +129,12 @@ class Usb:
         print(f'>>> {hex}')
         return transferred.value
 
-    def bulk_read(self, length: int, timeout: timedelta | None = None) -> bytes:
+    def bulk_read(self, timeout: timedelta | None = None) -> bytes:
+        if self.device is None:
+            raise NoDeviceError('No pad connected.')
         timeout_ms = 0 if timeout is None else int(1000 * timeout.total_seconds())
         transferred = c_int(-1)
-        buffer = create_string_buffer(length)
+        buffer = create_string_buffer(32)
         self.libusb.libusb_bulk_transfer(
             self.device,
             self.ENDPOINT_IN,
@@ -144,31 +149,32 @@ class Usb:
         return data
 
     def send(self, request: bytes, timeout: timedelta | None = None) -> bytes:
+        if len(request) > 31:
+            raise InvalidParamError('Request too long.')
+
         if self.bulk_write(request, timeout) != 32:
             raise IOError('Partial write.')
 
-        buffer = self.bulk_read(32, timeout)
+        buffer = self.bulk_read(timeout)
         if len(buffer) != 32:
             raise IOError('Partial read.')
 
-        response = bytes()
         if buffer[0] in [0x00, 0x41]:
-            response = buffer
+            return buffer
         elif buffer[0] == 0x45:
-            response += buffer
+            response = bytearray(buffer)
             for _ in range(buffer[1] - 1):
-                buffer = self.bulk_read(32, timeout)
+                buffer = self.bulk_read(timeout)
                 if len(buffer) != 32:
                     raise IOError('Partial read.')
                 if buffer[0] != 0x01:
                     raise OtherError('Unknown data.')
                 response += buffer
+            return bytes(response)
         elif buffer[0] == 0x4E:
             raise OtherError('Pad responded with an error.')
         else:
             raise OtherError('Unknown response from pad.')
-
-        return response
 
     def __del__(self):
         self.disconnect()
@@ -177,7 +183,7 @@ class Usb:
         del self.libusb
 
     @staticmethod
-    def _checksum(data: bytes) -> int:
+    def _checksum(data: Sequence[int]) -> int:
         result = 0xFFFFFFFF
         for b in data:
             result ^= b

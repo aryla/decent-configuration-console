@@ -30,6 +30,30 @@ Page {
             Layout.fillWidth: true
         }
 
+        RowLayout {
+            SpinBox {
+                implicitWidth: 48
+                from: 0
+                to: 1000
+                value: root.panel.sensitivity
+
+                onValueModified: {
+                    root.panel.sensitivity = value;
+                }
+            }
+
+            Slider {
+                Layout.fillWidth: true
+                from: 0
+                to: 1000
+                value: root.panel.sensitivity
+
+                onMoved: {
+                    root.panel.sensitivity = value;
+                }
+            }
+        }
+
         Item {
             Layout.fillHeight: true
         }

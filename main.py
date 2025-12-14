@@ -5,10 +5,9 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
 import rc_resources  # noqa: F401
-from datatypes import PanelId
 from model import Model
 from pad import Pad
-from usb import Usb
+from util import Throttle
 
 
 def main():
@@ -24,6 +23,12 @@ def main():
     pad.profile.connect(model.pad_profile)
     pad.readings.connect(model.pad_readings)
     pad.ranges.connect(model.pad_ranges)
+    pad.sensitivity.connect(model.pad_sensitivity)
+    pad.error.connect(model.pad_error)
+
+    throttle = Throttle(pad)
+    model.range_set.connect(throttle.set_range)
+    model.sensitivity_set.connect(throttle.set_sensitivity)
 
     engine = QQmlApplicationEngine()
     engine.setInitialProperties({'model': model})
