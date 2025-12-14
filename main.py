@@ -14,20 +14,24 @@ def main():
     app = QGuiApplication(sys.argv)
 
     pad = Pad()
-    model = Model()  # pyright: ignore[reportCallIssue]
+    model = Model()
 
     pad.alias.connect(model.pad_alias)
     pad.connected.connect(model.pad_connected)
+    pad.curve.connect(model.pad_curve)
     pad.disconnected.connect(model.pad_disconnected)
+    pad.error.connect(model.pad_error)
     pad.hidmode.connect(model.pad_hidmode)
     pad.profile.connect(model.pad_profile)
-    pad.readings.connect(model.pad_readings)
     pad.ranges.connect(model.pad_ranges)
+    pad.readings.connect(model.pad_readings)
     pad.sensitivity.connect(model.pad_sensitivity)
-    pad.error.connect(model.pad_error)
+    pad.serial.connect(model.pad_serial)
 
     throttle = Throttle(pad)
-    model.range_set.connect(throttle.set_range)
+    model.alias_set.connect(throttle.set_alias)
+    model.profile_set.connect(throttle.set_profile)
+    model.range_set.connect(throttle.set_ranges)
     model.sensitivity_set.connect(throttle.set_sensitivity)
 
     engine = QQmlApplicationEngine()

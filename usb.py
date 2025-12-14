@@ -110,7 +110,9 @@ class Usb:
         self.libusb.libusb_close(self.device)
         self.device = None
 
-    def bulk_write(self, data: bytes, timeout: timedelta | None = None) -> int:
+    def bulk_write(self, data: bytes, timeout: timedelta | None = None) -> None:
+        if len(data) > 31:
+            raise InvalidParamError('Request too long.')
         if self.device is None:
             raise NoDeviceError('No pad connected.')
         buffer = create_string_buffer(data, 32)
@@ -125,9 +127,8 @@ class Usb:
             pointer(transferred),
             c_uint(timeout_ms),
         )
-        hex = ''.join((f'{x:02x}' for x in buffer[: transferred.value]))
-        print(f'>>> {hex}')
-        return transferred.value
+        if transferred.value != len(buffer):
+            raise IOError('Partial write.')
 
     def bulk_read(self, timeout: timedelta | None = None) -> bytes:
         if self.device is None:
@@ -143,38 +144,33 @@ class Usb:
             pointer(transferred),
             c_uint(timeout_ms),
         )
-        data = bytes(buffer)[: transferred.value]
-        hex = ''.join((f'{x:02x}' for x in data))
-        print(f'<<< {hex}')
-        return data
+        if transferred.value != len(buffer):
+            raise IOError('Partial read.')
+        if int.from_bytes(buffer[-1]) != self._checksum(buffer[:-1]):
+            raise IOError('Checksum failure.')
+        return bytes(buffer)
 
     def send(self, request: bytes, timeout: timedelta | None = None) -> bytes:
-        if len(request) > 31:
-            raise InvalidParamError('Request too long.')
-
-        if self.bulk_write(request, timeout) != 32:
-            raise IOError('Partial write.')
-
+        self.bulk_write(request, timeout)
         buffer = self.bulk_read(timeout)
-        if len(buffer) != 32:
-            raise IOError('Partial read.')
 
-        if buffer[0] in [0x00, 0x41]:
+        if buffer[0] == 0x41:
             return buffer
         elif buffer[0] == 0x45:
-            response = bytearray(buffer)
-            for _ in range(buffer[1] - 1):
+            response = bytearray(buffer[:-1])
+            num_packets = buffer[1]
+            if num_packets > 2:
+                raise OtherError('Unexpected data received.')
+            for packet_number in range(1, num_packets):
                 buffer = self.bulk_read(timeout)
-                if len(buffer) != 32:
-                    raise IOError('Partial read.')
-                if buffer[0] != 0x01:
-                    raise OtherError('Unknown data.')
-                response += buffer
+                if buffer[0] != packet_number:
+                    raise OtherError('Unexpected data received.')
+                response += buffer[1:-1]
             return bytes(response)
         elif buffer[0] == 0x4E:
             raise OtherError('Pad responded with an error.')
         else:
-            raise OtherError('Unknown response from pad.')
+            raise OtherError('Unexpected data received.')
 
     def __del__(self):
         self.disconnect()

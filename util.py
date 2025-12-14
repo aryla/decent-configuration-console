@@ -12,7 +12,7 @@ def throttle_key(key_selector: Callable):
     return decorator
 
 
-class Throttle(QObject):
+class _Throttle(QObject):
     _queue: list[tuple[Callable, Any, list[Any]]]
 
     def __init__(self, target: QObject, parent: QObject | None = None):
@@ -53,3 +53,7 @@ class Throttle(QObject):
         for i, (slot, key, args) in enumerate(queue):
             if i + 1 >= len(queue) or queue[i + 1][1] != key:
                 slot(*args)
+
+
+def Throttle[T: QObject](target: T) -> T:
+    return _Throttle(target)  # pyright: ignore[reportReturnType]

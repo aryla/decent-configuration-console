@@ -27,9 +27,9 @@ ApplicationWindow {
         text: "Profile 1"
         shortcut: "Ctrl+1"
         checkable: true
-        checked: root.model.profile == 1
+        checked: root.model.profile == 0
         onTriggered: {
-            root.model.profile = 1;
+            root.model.profile = 0;
         }
     }
 
@@ -38,9 +38,9 @@ ApplicationWindow {
         text: "Profile 2"
         shortcut: "Ctrl+2"
         checkable: true
-        checked: root.model.profile == 2
+        checked: root.model.profile == 1
         onTriggered: {
-            root.model.profile = 2;
+            root.model.profile = 1;
         }
     }
 
@@ -49,9 +49,9 @@ ApplicationWindow {
         text: "Profile 3"
         shortcut: "Ctrl+3"
         checkable: true
-        checked: root.model.profile == 3
+        checked: root.model.profile == 2
         onTriggered: {
-            root.model.profile = 3;
+            root.model.profile = 2;
         }
     }
 
@@ -60,9 +60,9 @@ ApplicationWindow {
         text: "Profile 4"
         shortcut: "Ctrl+4"
         checkable: true
-        checked: root.model.profile == 4
+        checked: root.model.profile == 3
         onTriggered: {
-            root.model.profile = 4;
+            root.model.profile = 3;
         }
     }
 
