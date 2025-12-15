@@ -25,6 +25,10 @@ def handle_errors(func):
     def wrapper(self, *args, **kwargs):
         try:
             func(self, *args, **kwargs)
+        except usb.NoDeviceError as e:
+            print(str(e))
+            self.error.emit(str(e))
+            self.disconnect()
         except usb.Error as e:
             print(str(e))
             self.error.emit(str(e))
@@ -68,10 +72,13 @@ class Pad(QObject):
     @handle_errors
     def connect(self):
         try:
+            self.stop_polling()
             self.usb.connect()
             self.connected.emit()
             self._refresh()
             self.start_polling()
+        except usb.NoDeviceError:
+            self.disconnect()
         except:
             self.disconnect()
             raise

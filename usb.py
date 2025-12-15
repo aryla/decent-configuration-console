@@ -1,6 +1,7 @@
 from ctypes import (
     CDLL,
     POINTER,
+    Structure,
     c_char,
     c_char_p,
     c_int,
@@ -17,6 +18,25 @@ from ctypes import (
 )
 from datetime import timedelta
 from typing import Sequence
+
+
+class DeviceDescriptor(Structure):
+    _fields_ = [
+        ('bLength', c_uint8),
+        ('bDescriptorType', c_uint8),
+        ('bcdUSB', c_uint16),
+        ('bDeviceClass', c_uint8),
+        ('bDeviceSubClass', c_uint8),
+        ('bDeviceProtocol', c_uint8),
+        ('bMaxPacketSize0', c_uint8),
+        ('idVendor', c_uint16),
+        ('idProduct', c_uint16),
+        ('bcdDevice', c_uint16),
+        ('iManufacturer', c_uint8),
+        ('iProduct', c_uint8),
+        ('iSerialNumber', c_uint8),
+        ('bNumConfigurations', c_uint8),
+    ]
 
 
 class Error(Exception):
@@ -61,27 +81,46 @@ class OtherError(Error): pass
 
 
 class Usb:
-    context: c_voidp | None
-    device: c_voidp | None
+    context: c_voidp
+    device: c_voidp
     libusb: CDLL
 
     CONFIGURATION = 1
     INTERFACE = 2
     ENDPOINT_IN = c_uint8(0x83)
     ENDPOINT_OUT = c_uint8(0x03)
+    VENDOR_ID = 0x0483
+    PRODUCT_ID = 0x571B
 
     def __init__(self):
         self.context = c_void_p()
-        self.device = None
+        self.device = c_void_p()
         self.libusb = CDLL('libusb-1.0.so.0')
         Usb._setup_types(self.libusb)
-        self.libusb.libusb_init(pointer(self.context))
 
     def connect(self):
         self.disconnect()
-        self.device = self.libusb.libusb_open_device_with_vid_pid(self.context, 0x0483, 0x571B)
-        if self.device is None:
-            raise NoDeviceError('No pad connected.')
+        self.libusb.libusb_init(pointer(self.context))
+
+        device_list = POINTER(c_voidp)()
+        num_devices = self.libusb.libusb_get_device_list(None, pointer(device_list))
+        if num_devices < 0:
+            raise OtherError('Error enumerating devices.')
+
+        try:
+            for i in range(num_devices):
+                descriptor = DeviceDescriptor()
+                self.libusb.libusb_get_device_descriptor(device_list[i], pointer(descriptor))
+                if (
+                    descriptor.idVendor == self.VENDOR_ID
+                    and descriptor.idProduct == self.PRODUCT_ID
+                ):
+                    self.libusb.libusb_open(device_list[i], pointer(self.device))
+                    break
+            else:
+                raise NoDeviceError('No pad connected.')
+        finally:
+            self.libusb.libusb_free_device_list(device_list, 1)
 
         active_config = c_int(-1)
         self.libusb.libusb_get_configuration(self.device, pointer(active_config))
@@ -101,19 +140,22 @@ class Usb:
             raise OtherError('Wrong configuration after claiming interface.')
 
     def disconnect(self):
-        if self.device is None:
-            return
-        try:
-            self.libusb.libusb_release_interface(self.device, self.INTERFACE)
-        except Error:
-            pass
-        self.libusb.libusb_close(self.device)
-        self.device = None
+        if self.device:
+            try:
+                self.libusb.libusb_release_interface(self.device, self.INTERFACE)
+            except Error:
+                pass
+            self.libusb.libusb_close(self.device)
+            self.device = c_void_p()
+
+        if self.context:
+            self.libusb.libusb_exit(self.context)
+            self.context = c_void_p()
 
     def bulk_write(self, data: bytes, timeout: timedelta | None = None) -> None:
         if len(data) > 31:
             raise InvalidParamError('Request too long.')
-        if self.device is None:
+        if not self.device:
             raise NoDeviceError('No pad connected.')
         buffer = create_string_buffer(data, 32)
         buffer[-1] = self._checksum(buffer[:-1])
@@ -131,7 +173,7 @@ class Usb:
             raise IOError('Partial write.')
 
     def bulk_read(self, timeout: timedelta | None = None) -> bytes:
-        if self.device is None:
+        if not self.device:
             raise NoDeviceError('No pad connected.')
         timeout_ms = 0 if timeout is None else int(1000 * timeout.total_seconds())
         transferred = c_int(-1)
@@ -174,8 +216,6 @@ class Usb:
 
     def __del__(self):
         self.disconnect()
-        self.libusb.libusb_exit(self.context)
-        self.context = None
         del self.libusb
 
     @staticmethod

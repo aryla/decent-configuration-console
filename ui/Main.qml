@@ -13,7 +13,21 @@ ApplicationWindow {
 
     property Model model
 
-    header: ToolBar {}
+    header: ToolBar {
+        RowLayout {
+            Text {
+                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                visible: root.model.connected
+                text: "Pad: "
+            }
+            Button {
+                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                visible: root.model.connected
+                text: root.model.alias
+                font: 'monospace'
+            }
+        }
+    }
 
     footer: ToolBar {
         Text {
@@ -22,104 +36,120 @@ ApplicationWindow {
         }
     }
 
-    Action {
-        id: saveChanges
-        text: "Save changes"
-        shortcut: "Ctrl+S"
-        enabled: root.model.has_changes
-        onTriggered: root.model.save_changes()
-    }
-
-    Action {
-        id: revertChanges
-        text: "Revert changes"
-        shortcut: "Ctrl+Z"
-        enabled: root.model.has_changes
-        onTriggered: root.model.revert_changes()
-    }
-
-    ColumnLayout {
+    StackLayout {
         anchors.fill: parent
-        anchors.topMargin: 8
-        spacing: 8
+        currentIndex: root.model.connected ? 1 : 0
 
-        RowLayout {
-            Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-            Layout.fillWidth: true
-            Layout.leftMargin: 16
-            Layout.rightMargin: 16
+        Item {
+            ColumnLayout {
+                anchors.centerIn: parent
 
-            spacing: 16
+                Text {
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    text: "No pad connected."
+                }
 
-            Item {
-                Layout.fillWidth: true
-                Layout.horizontalStretchFactor: 1089
-            }
-
-            ProfileView {
-                profileId: 0
-                model: root.model
-            }
-
-            ProfileView {
-                profileId: 1
-                model: root.model
-            }
-
-            ProfileView {
-                profileId: 2
-                model: root.model
-            }
-
-            ProfileView {
-                profileId: 3
-                model: root.model
-            }
-
-            Item {
-                Layout.fillWidth: true
-                Layout.horizontalStretchFactor: 868
-            }
-
-            Button {
-                action: saveChanges
-            }
-            Button {
-                action: revertChanges
+                Button {
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                    text: "Refresh"
+                    onClicked: root.model.do_connect()
+                }
             }
         }
 
-        RowLayout {
-            Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-            uniformCellSizes: true
+        ColumnLayout {
             spacing: 8
 
-            PanelView {
+            RowLayout {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                panel: root.model.panel0
+                Layout.topMargin: 8
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+
+                spacing: 16
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.horizontalStretchFactor: 1089
+                }
+
+                ProfileView {
+                    profileId: 0
+                    model: root.model
+                }
+
+                ProfileView {
+                    profileId: 1
+                    model: root.model
+                }
+
+                ProfileView {
+                    profileId: 2
+                    model: root.model
+                }
+
+                ProfileView {
+                    profileId: 3
+                    model: root.model
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.horizontalStretchFactor: 868
+                }
+
+                Button {
+                    action: Action {
+                        text: "Save"
+                        shortcut: "Ctrl+S"
+                        enabled: root.model.has_changes
+                        onTriggered: root.model.save_changes()
+                    }
+                }
+
+                Button {
+                    action: Action {
+                        text: "Revert"
+                        shortcut: "Ctrl+Z"
+                        enabled: root.model.has_changes
+                        onTriggered: root.model.revert_changes()
+                    }
+                }
             }
 
-            PanelView {
+            RowLayout {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                panel: root.model.panel1
-            }
+                uniformCellSizes: true
+                spacing: 8
 
-            PanelView {
-                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                panel: root.model.panel2
-            }
+                PanelView {
+                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    panel: root.model.panel0
+                }
 
-            PanelView {
-                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                panel: root.model.panel3
+                PanelView {
+                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    panel: root.model.panel1
+                }
+
+                PanelView {
+                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    panel: root.model.panel2
+                }
+
+                PanelView {
+                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    panel: root.model.panel3
+                }
             }
         }
     }

@@ -257,6 +257,7 @@ class Panel(QObject):
 @QmlElement
 class Model(QObject):
     alias_changed = Signal()
+    connected_changed = Signal()
     changes_changed = Signal()
     message_changed = Signal()
     profile_changed = Signal()
@@ -265,6 +266,8 @@ class Model(QObject):
     alias_set = Signal(str)
     changes_reverted = Signal(Changes)
     changes_saved = Signal(Changes)
+    do_connect = Signal()
+    do_disconnect = Signal()
     profile_set = Signal(ProfileId)
     range_set = Signal(PanelId, tuple)
     sensitivity_set = Signal(PanelId, Sensitivity)
@@ -273,6 +276,7 @@ class Model(QObject):
         super().__init__(parent)
         self._alias = 'Unnamed'
         self._changes = Changes(0)
+        self._connected = False
         self._message = None
         self._profile = -1
 
@@ -303,6 +307,10 @@ class Model(QObject):
             self.alias_set.emit(x)
             self._changes |= Changes.Alias
             self.changes_changed.emit()
+
+    @Property(bool, notify=connected_changed, final=True)
+    def connected(self):
+        return self._connected
 
     @Property(bool, notify=changes_changed, final=True)
     def has_changes(self):
@@ -385,7 +393,8 @@ class Model(QObject):
 
     @Slot()
     def pad_connected(self):
-        self.message = 'Connected'
+        self._connected = True
+        self.connected_changed.emit()
 
     @Slot(PanelId, Curve)
     def pad_curve(self, panel: PanelId, curve: Curve):
@@ -393,7 +402,8 @@ class Model(QObject):
 
     @Slot()
     def pad_disconnected(self):
-        self.message = 'Disconnected'
+        self._connected = False
+        self.connected_changed.emit()
 
     @Slot(HidMode)
     def pad_hidmode(self, mode: HidMode):
