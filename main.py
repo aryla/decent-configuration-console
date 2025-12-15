@@ -30,6 +30,8 @@ def main():
 
     throttle = Throttle(pad)
     model.alias_set.connect(throttle.set_alias)
+    model.changes_reverted.connect(throttle.revert_changes)
+    model.changes_saved.connect(throttle.save_changes)
     model.profile_set.connect(throttle.set_profile)
     model.range_set.connect(throttle.set_ranges)
     model.sensitivity_set.connect(throttle.set_sensitivity)

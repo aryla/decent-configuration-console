@@ -70,13 +70,7 @@ class Pad(QObject):
         try:
             self.usb.connect()
             self.connected.emit()
-            self.get_info()
-            self.get_alias()
-            self.get_profile()
-            for panel in PanelId:
-                self.get_sensitivity(panel)
-                self.get_ranges(panel)
-                self.get_curve(panel)
+            self._refresh()
             self.start_polling()
         except:
             self.disconnect()
@@ -125,19 +119,21 @@ class Pad(QObject):
     @handle_errors
     def save_changes(self, changes: Changes):
         self.usb.send(struct.pack('< BB', 0x31, changes.value))
+        self._refresh()
 
     @Slot()
     @throttle_key(lambda changes: changes)
     @handle_errors
     def revert_changes(self, changes: Changes):
         self.usb.send(struct.pack('< BB', 0x32, changes.value))
+        self._refresh()
 
     @Slot()
     @handle_errors
     def get_hidmode(self):
-        _response = self.usb.send(struct.pack('< B', 0x50))
-        # TODO
-        # self.hidmode.emit()
+        response = self.usb.send(struct.pack('< B', 0x50))
+        (hidmode,) = struct.unpack('< x B 30x', response)
+        self.hidmode.emit(HidMode(hidmode))
 
     @Slot(HidMode)
     @throttle_key(lambda mode: mode)
@@ -265,6 +261,17 @@ class Pad(QObject):
     def _poll(self):
         for panel in PanelId:
             self.get_readings(panel)
+
+    def _refresh(self):
+        self.get_info()
+        self.get_alias()
+        self.get_profile()
+        self.get_hidmode()
+        for panel in PanelId:
+            self.get_sensitivity(panel)
+            self.get_ranges(panel)
+            self.get_curve(panel)
+        self.get_changes()
 
     @Slot()
     def quit(self):

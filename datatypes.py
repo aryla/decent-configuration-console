@@ -4,7 +4,7 @@ from typing import NamedTuple, Sequence
 
 
 class Changes(Flag):
-    Name = 0x01
+    Alias = 0x01
     HidMode = 0x04
     Profile = 0x08
 

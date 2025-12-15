@@ -3,10 +3,10 @@ from typing import Callable
 
 import PySide6.QtCore
 import PySide6.QtQml
-from PySide6.QtCore import QObject, QPointF, QPointList, Signal, Slot
-from PySide6.QtGraphs import QLineSeries
+from PySide6.QtCore import QObject, QPointF, Signal, Slot
 
 from datatypes import (
+    Changes,
     Curve,
     CurveBand,
     HidMode,
@@ -257,11 +257,14 @@ class Panel(QObject):
 @QmlElement
 class Model(QObject):
     alias_changed = Signal()
+    changes_changed = Signal()
     message_changed = Signal()
     profile_changed = Signal()
     serial_changed = Signal()
 
     alias_set = Signal(str)
+    changes_reverted = Signal(Changes)
+    changes_saved = Signal(Changes)
     profile_set = Signal(ProfileId)
     range_set = Signal(PanelId, tuple)
     sensitivity_set = Signal(PanelId, Sensitivity)
@@ -269,8 +272,10 @@ class Model(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._alias = 'Unnamed'
-        self._profile = -1
+        self._changes = Changes(0)
         self._message = None
+        self._profile = -1
+
         self.panels = (
             Panel(self, PanelId.Left, 'Back', 'Front', flipped=True),
             Panel(self, PanelId.Down, 'Right', 'Left', flipped=True),
@@ -281,6 +286,8 @@ class Model(QObject):
         for panel in self.panels:
             panel.range_set.connect(self.range_set)
             panel.sensitivity_set.connect(self.sensitivity_set)
+            panel.range_set.connect(self._handle_change)
+            panel.sensitivity_set.connect(self._handle_change)
 
     @Property(str, notify=alias_changed, final=True)
     def alias(self):
@@ -294,6 +301,12 @@ class Model(QObject):
             self._alias = x
             self.alias_changed.emit()
             self.alias_set.emit(x)
+            self._changes |= Changes.Alias
+            self.changes_changed.emit()
+
+    @Property(bool, notify=changes_changed, final=True)
+    def has_changes(self):
+        return bool(self._changes)
 
     @Property(str, notify=message_changed, final=True)
     def message(self):
@@ -336,10 +349,35 @@ class Model(QObject):
     def serial(self):
         return self._serial
 
+    @Slot()
+    def _handle_change(self):
+        self._changes |= Changes.Profile
+        self.changes_changed.emit()
+
+    @Slot()
+    def revert_changes(self):
+        if self._changes:
+            self.changes_reverted.emit(self._changes)
+            self._changes = Changes(0)
+            self.changes_changed.emit()
+
+    @Slot()
+    def save_changes(self):
+        if self._changes:
+            self.changes_saved.emit(self._changes)
+            self._changes = Changes(0)
+            self.changes_changed.emit()
+
     @Slot(str)
     def pad_alias(self, alias: str):
         self._alias = alias
         self.alias_changed.emit()
+
+    @Slot(Changes)
+    def pad_changes(self, changes: Changes):
+        if self._changes != changes:
+            self._changes = changes
+            self.changes_changed.emit()
 
     @Slot()
     def pad_connected(self):
