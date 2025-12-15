@@ -14,17 +14,41 @@ ApplicationWindow {
     property Model model
 
     header: ToolBar {
+        topPadding: 8
+        bottomPadding: 8
+
         RowLayout {
+            anchors.fill: parent
+
             Text {
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                 visible: root.model.connected
                 text: "Pad: "
             }
             Button {
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                 visible: root.model.connected
                 text: root.model.alias
-                font: 'monospace'
+                font.family: "monospace"
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            Button {
+                visible: root.model.connected
+                text: "Disconnect"
+                onClicked: root.model.do_disconnect()
+            }
+
+            Button {
+                visible: !root.model.connected
+                text: "Connect"
+                onClicked: root.model.do_connect()
+            }
+
+            Button {
+                text: "Quit"
+                onClicked: root.close()
             }
         }
     }
@@ -51,7 +75,7 @@ ApplicationWindow {
 
                 Button {
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                    text: "Refresh"
+                    text: "Connect"
                     onClicked: root.model.do_connect()
                 }
             }
