@@ -23,42 +23,6 @@ ApplicationWindow {
     }
 
     Action {
-        id: selectProfile1
-        text: "Profile 1"
-        shortcut: "Ctrl+1"
-        checkable: true
-        checked: root.model.profile == 0
-        onTriggered: root.model.profile = 0
-    }
-
-    Action {
-        id: selectProfile2
-        text: "Profile 2"
-        shortcut: "Ctrl+2"
-        checkable: true
-        checked: root.model.profile == 1
-        onTriggered: root.model.profile = 1
-    }
-
-    Action {
-        id: selectProfile3
-        text: "Profile 3"
-        shortcut: "Ctrl+3"
-        checkable: true
-        checked: root.model.profile == 2
-        onTriggered: root.model.profile = 2
-    }
-
-    Action {
-        id: selectProfile4
-        text: "Profile 4"
-        shortcut: "Ctrl+4"
-        checkable: true
-        checked: root.model.profile == 3
-        onTriggered: root.model.profile = 3
-    }
-
-    Action {
         id: saveChanges
         text: "Save changes"
         shortcut: "Ctrl+S"
@@ -92,29 +56,24 @@ ApplicationWindow {
                 Layout.horizontalStretchFactor: 1089
             }
 
-            ButtonGroup {
-                exclusive: true
-                buttons: [buttonProfile1, buttonProfile2, buttonProfile3, buttonProfile4]
+            ProfileView {
+                profileId: 0
+                model: root.model
             }
 
-            Button {
-                id: buttonProfile1
-                action: selectProfile1
+            ProfileView {
+                profileId: 1
+                model: root.model
             }
 
-            Button {
-                id: buttonProfile2
-                action: selectProfile2
+            ProfileView {
+                profileId: 2
+                model: root.model
             }
 
-            Button {
-                id: buttonProfile3
-                action: selectProfile3
-            }
-
-            Button {
-                id: buttonProfile4
-                action: selectProfile4
+            ProfileView {
+                profileId: 3
+                model: root.model
             }
 
             Item {

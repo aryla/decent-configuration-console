@@ -2,6 +2,7 @@
 <qresource prefix="/">
     <file>ui/Main.qml</file>
     <file>ui/PanelView.qml</file>
+    <file>ui/ProfileView.qml</file>
     <file>ui/SensorView.qml</file>
 </qresource>
 <qresource prefix="/">

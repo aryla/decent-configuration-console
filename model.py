@@ -373,6 +373,10 @@ class Model(QObject):
         self._alias = alias
         self.alias_changed.emit()
 
+    @Slot(PanelId, CurveBand)
+    def pad_band(self, panel: PanelId, band: CurveBand):
+        self.panels[panel.value].curve.pad_band(band)
+
     @Slot(Changes)
     def pad_changes(self, changes: Changes):
         if self._changes != changes:

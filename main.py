@@ -17,6 +17,8 @@ def main():
     model = Model()
 
     pad.alias.connect(model.pad_alias)
+    pad.band.connect(model.pad_band)
+    pad.changes.connect(model.pad_changes)
     pad.connected.connect(model.pad_connected)
     pad.curve.connect(model.pad_curve)
     pad.disconnected.connect(model.pad_disconnected)

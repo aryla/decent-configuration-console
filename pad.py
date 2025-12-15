@@ -106,6 +106,7 @@ class Pad(QObject):
         if len(alias_bytes) == 0:
             alias_bytes = b'Unnamed'
         self.usb.send(struct.pack('< B 30s', 0x11, alias_bytes))
+        self.alias.emit(alias)
 
     @Slot()
     @handle_errors
@@ -119,14 +120,24 @@ class Pad(QObject):
     @handle_errors
     def save_changes(self, changes: Changes):
         self.usb.send(struct.pack('< BB', 0x31, changes.value))
-        self._refresh()
+        self.changes.emit(Changes(0))
 
     @Slot()
     @throttle_key(lambda changes: changes)
     @handle_errors
     def revert_changes(self, changes: Changes):
         self.usb.send(struct.pack('< BB', 0x32, changes.value))
-        self._refresh()
+        self.changes.emit(Changes(0))
+        if changes & Changes.Alias:
+            self.get_alias()
+        if changes & Changes.HidMode:
+            self.get_hidmode()
+        if changes & Changes.Profile:
+            self.get_profile()
+            for panel in PanelId:
+                self.get_sensitivity(panel)
+                self.get_ranges(panel)
+                self.get_curve(panel)
 
     @Slot()
     @handle_errors
@@ -140,6 +151,7 @@ class Pad(QObject):
     @handle_errors
     def set_hidmode(self, mode: HidMode):
         self.usb.send(struct.pack('< BB', 0x51, mode.value))
+        self.hidmode.emit(mode)
 
     @Slot()
     @handle_errors
@@ -153,6 +165,7 @@ class Pad(QObject):
     @handle_errors
     def set_profile(self, profile: ProfileId):
         self.usb.send(struct.pack('< BB', 0x81, profile.value))
+        self.profile.emit(ProfileId(profile))
         for panel in PanelId:
             self.get_sensitivity(panel)
             self.get_ranges(panel)
@@ -194,7 +207,6 @@ class Pad(QObject):
     @handle_errors
     def reset_curve(self, panel: PanelId):
         self.usb.send(struct.pack('< BB', 0x8B, panel.value))
-        self.curve.emit(panel, Curve.default())
         self.get_curve(panel)
 
     @Slot()
