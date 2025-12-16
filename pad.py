@@ -104,7 +104,7 @@ class Pad(QObject):
         alias = alias.decode('utf-8', errors='replace').strip('\x00')
         self.alias.emit(alias)
 
-    @Slot()
+    @Slot(str)
     @handle_errors
     def set_alias(self, alias: str):
         alias_bytes = alias.encode('utf-8')
@@ -122,14 +122,14 @@ class Pad(QObject):
         (flags,) = struct.unpack('< x B 30x', response)
         self.changes.emit(Changes(flags))
 
-    @Slot()
+    @Slot(Changes)
     @throttle_key(lambda changes: changes)
     @handle_errors
     def save_changes(self, changes: Changes):
         self.usb.send(struct.pack('< BB', 0x31, changes.value))
         self.changes.emit(Changes(0))
 
-    @Slot()
+    @Slot(Changes)
     @throttle_key(lambda changes: changes)
     @handle_errors
     def revert_changes(self, changes: Changes):
@@ -178,7 +178,7 @@ class Pad(QObject):
             self.get_ranges(panel)
             self.get_curve(panel)
 
-    @Slot()
+    @Slot(PanelId)
     @throttle_key(lambda panel: panel)
     @handle_errors
     def get_curve(self, panel: PanelId):
@@ -203,7 +203,7 @@ class Pad(QObject):
     def add_curve_point(self, panel: PanelId, index: int, p: CurvePoint):
         self.usb.send(struct.pack('< BBBff', 0x88, panel.value, index, p.x, p.y))
 
-    @Slot(PanelId, Curve)
+    @Slot(PanelId, int, CurvePoint)
     @throttle_key(lambda panel: panel)
     @handle_errors
     def set_curve_point(self, panel: PanelId, index: int, p: CurvePoint):
@@ -216,7 +216,7 @@ class Pad(QObject):
         self.usb.send(struct.pack('< BB', 0x8B, panel.value))
         self.get_curve(panel)
 
-    @Slot()
+    @Slot(PanelId)
     @throttle_key(lambda panel: panel)
     @handle_errors
     def get_sensitivity(self, panel: PanelId):
@@ -238,13 +238,13 @@ class Pad(QObject):
         below, above = struct.unpack('< x ff 15x', response)
         self.band.emit(panel, CurveBand(below, above))
 
-    @Slot(PanelId, Sensitivity)
+    @Slot(PanelId, CurveBand)
     @throttle_key(lambda panel, _: panel)
     @handle_errors
-    def set_band(self, panel: PanelId, below: float, above: float):
-        self.usb.send(struct.pack('< BBff', 0x93, panel.value, below, above))
+    def set_band(self, panel: PanelId, band: CurveBand):
+        self.usb.send(struct.pack('< BBff', 0x93, panel.value, band.below, band.above))
 
-    @Slot()
+    @Slot(PanelId)
     @throttle_key(lambda panel: panel)
     @handle_errors
     def get_ranges(self, panel: PanelId):
