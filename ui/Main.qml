@@ -28,6 +28,76 @@ ApplicationWindow {
                 visible: root.model.connected
                 text: root.model.alias
                 font.family: "monospace"
+                onClicked: padInfo.open()
+
+                Popup {
+                    id: padInfo
+                    modal: true
+                    focus: true
+                    topPadding: 16
+                    bottomPadding: 16
+                    leftPadding: 16
+                    rightPadding: 16
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+                    Component.onCompleted: {
+                        root.model.connected_changed.connect(function () {
+                            if (!root.model.connected) {
+                                padInfo.close();
+                            }
+                        });
+                    }
+
+                    GridLayout {
+                        columns: 2
+
+                        Text {
+                            text: "Serial number: "
+                        }
+
+                        Text {
+                            text: root.model.serial
+                            font.family: "monospace"
+                        }
+
+                        Text {
+                            text: "Alias: "
+                        }
+
+                        TextField {
+                            Layout.fillWidth: true
+                            text: root.model.alias
+                            maximumLength: 30
+                            font.family: "monospace"
+                            onEditingFinished: root.model.alias = text
+                        }
+
+                        Text {
+                            text: "Mode: "
+                        }
+
+                        Row {
+                            spacing: 8
+                            Button {
+                                checked: root.model.hidmode == 2
+                                text: "Joystick"
+                                onClicked: root.model.hidmode = 2
+                            }
+
+                            Button {
+                                checked: root.model.hidmode == 1
+                                text: "Keyboard"
+                                onClicked: root.model.hidmode = 1
+                            }
+
+                            Button {
+                                checked: root.model.hidmode == 0
+                                text: "Hidden"
+                                onClicked: root.model.hidmode = 0
+                            }
+                        }
+                    }
+                }
             }
 
             Item {
@@ -88,8 +158,8 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.fillWidth: true
                 Layout.topMargin: 8
-                Layout.leftMargin: 16
-                Layout.rightMargin: 16
+                Layout.leftMargin: 8
+                Layout.rightMargin: 8
 
                 spacing: 16
 

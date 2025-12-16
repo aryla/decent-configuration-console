@@ -259,6 +259,7 @@ class Model(QObject):
     alias_changed = Signal()
     connected_changed = Signal()
     changes_changed = Signal()
+    hidmode_changed = Signal()
     message_changed = Signal()
     profile_changed = Signal()
     serial_changed = Signal()
@@ -268,6 +269,7 @@ class Model(QObject):
     changes_saved = Signal(Changes)
     do_connect = Signal()
     do_disconnect = Signal()
+    hidmode_set = Signal(HidMode)
     profile_set = Signal(ProfileId)
     range_set = Signal(PanelId, tuple)
     sensitivity_set = Signal(PanelId, Sensitivity)
@@ -277,8 +279,10 @@ class Model(QObject):
         self._alias = 'Unnamed'
         self._changes = Changes(0)
         self._connected = False
+        self._hidmode = HidMode.Hidden
         self._message = None
         self._profile = -1
+        self._serial = 0
 
         self.panels = (
             Panel(self, PanelId.Left, 'Back', 'Front', flipped=True),
@@ -315,6 +319,20 @@ class Model(QObject):
     @Property(bool, notify=changes_changed, final=True)
     def has_changes(self):
         return bool(self._changes)
+
+    @Property(int, notify=hidmode_changed, final=True)
+    def hidmode(self):
+        return self._hidmode.value
+
+    @hidmode.setter
+    def hidmode(self, x):
+        mode = HidMode(x)
+        if self._hidmode != mode:
+            self._hidmode = mode
+            self.hidmode_changed.emit()
+            self.hidmode_set.emit(mode)
+            self._changes |= Changes.HidMode
+            self.changes_changed.emit()
 
     @Property(str, notify=message_changed, final=True)
     def message(self):
@@ -353,7 +371,7 @@ class Model(QObject):
     def panel3(self):
         return self.panels[3]
 
-    @Property(int, final=True)
+    @Property(int, notify=serial_changed, final=True)
     def serial(self):
         return self._serial
 
@@ -407,7 +425,8 @@ class Model(QObject):
 
     @Slot(HidMode)
     def pad_hidmode(self, mode: HidMode):
-        pass
+        self._hidmode = mode
+        self.hidmode_changed.emit()
 
     @Slot(ProfileId)
     def pad_profile(self, profile: ProfileId):

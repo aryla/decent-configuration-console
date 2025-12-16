@@ -36,6 +36,7 @@ def main():
     model.changes_saved.connect(throttle.save_changes)
     model.do_connect.connect(throttle.connect)
     model.do_disconnect.connect(throttle.disconnect)
+    model.hidmode_set.connect(throttle.set_hidmode)
     model.profile_set.connect(throttle.set_profile)
     model.range_set.connect(throttle.set_ranges)
     model.sensitivity_set.connect(throttle.set_sensitivity)
