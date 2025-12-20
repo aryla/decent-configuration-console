@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
     <file>ui/Main.qml</file>
+    <file>ui/CurveView.qml</file>
     <file>ui/PanelView.qml</file>
     <file>ui/ProfileView.qml</file>
     <file>ui/SensorView.qml</file>

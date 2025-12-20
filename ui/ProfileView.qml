@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Dialogs
+import QtQuick.Layouts
 
 import Model
 
@@ -22,23 +22,64 @@ Button {
         }
     }
 
-    MessageDialog {
+    Popup {
         id: confirmationDialog
-        text: "You have unsaved changes."
-        informativeText: "Do you want to save your changes?"
-        buttons: MessageDialog.Save | MessageDialog.Discard | MessageDialog.Cancel
-        onButtonClicked: function (button, role) {
-            switch (button) {
-            case MessageDialog.Save:
-                root.model.save_changes();
-                root.model.profile = root.profileId;
-                break;
-            case MessageDialog.Discard:
-                root.model.revert_changes();
-                root.model.profile = root.profileId;
-                break;
-            case MessageDialog.Cancel:
-                break;
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        modal: true
+        focus: true
+        topPadding: 16
+        bottomPadding: 16
+        leftPadding: 16
+        rightPadding: 16
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+        Overlay.modal: Rectangle {
+            color: "#7f000000"
+        }
+
+        Component.onCompleted: {
+            root.model.connected_changed.connect(function () {
+                if (!root.model.connected) {
+                    confirmationDialog.close();
+                }
+            });
+        }
+
+        ColumnLayout {
+            spacing: 8
+
+            Label {
+                text: "Save changes?"
+            }
+
+            Row {
+                spacing: 8
+
+                Button {
+                    text: "Save"
+                    onClicked: {
+                        confirmationDialog.close();
+                        root.model.save_changes();
+                        root.model.profile = root.profileId;
+                    }
+                }
+
+                Button {
+                    text: "Discard"
+                    onClicked: {
+                        confirmationDialog.close();
+                        root.model.revert_changes();
+                        root.model.profile = root.profileId;
+                    }
+                }
+
+                Button {
+                    text: "Cancel"
+                    onClicked: {
+                        confirmationDialog.close();
+                    }
+                }
             }
         }
     }

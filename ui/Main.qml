@@ -9,7 +9,6 @@ ApplicationWindow {
     width: 960
     height: 540
     visible: true
-    title: "Decent Configuration Console"
 
     property Model model
 
@@ -20,7 +19,7 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
 
-            Text {
+            Label {
                 visible: root.model.connected
                 text: "Pad: "
             }
@@ -40,6 +39,10 @@ ApplicationWindow {
                     rightPadding: 16
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
+                    Overlay.modal: Rectangle {
+                        color: "#7f000000"
+                    }
+
                     Component.onCompleted: {
                         root.model.connected_changed.connect(function () {
                             if (!root.model.connected) {
@@ -48,52 +51,65 @@ ApplicationWindow {
                         });
                     }
 
-                    GridLayout {
-                        columns: 2
+                    ColumnLayout {
+                        spacing: 8
+                        GridLayout {
+                            columns: 2
+                            uniformCellHeights: true
 
-                        Text {
-                            text: "Serial number: "
-                        }
-
-                        Text {
-                            text: root.model.serial
-                            font.family: "monospace"
-                        }
-
-                        Text {
-                            text: "Alias: "
-                        }
-
-                        TextField {
-                            Layout.fillWidth: true
-                            text: root.model.alias
-                            maximumLength: 30
-                            font.family: "monospace"
-                            onEditingFinished: root.model.alias = text
-                        }
-
-                        Text {
-                            text: "Mode: "
-                        }
-
-                        Row {
-                            spacing: 8
-                            Button {
-                                checked: root.model.hidmode == 2
-                                text: "Joystick"
-                                onClicked: root.model.hidmode = 2
+                            Label {
+                                text: "Alias:"
                             }
 
-                            Button {
-                                checked: root.model.hidmode == 1
-                                text: "Keyboard"
-                                onClicked: root.model.hidmode = 1
+                            TextField {
+                                Layout.fillWidth: true
+                                text: root.model.alias
+                                maximumLength: 30
+                                font.family: "monospace"
+                                onEditingFinished: root.model.alias = text
+                                placeholderText: "Unnamed"
                             }
 
-                            Button {
-                                checked: root.model.hidmode == 0
-                                text: "Hidden"
-                                onClicked: root.model.hidmode = 0
+                            Label {
+                                text: "Mode:"
+                            }
+
+                            Row {
+                                spacing: 8
+                                Button {
+                                    checked: root.model.hidmode == 2
+                                    text: "Joystick"
+                                    onClicked: root.model.hidmode = 2
+                                }
+
+                                Button {
+                                    checked: root.model.hidmode == 1
+                                    text: "Keyboard"
+                                    onClicked: root.model.hidmode = 1
+                                }
+
+                                Button {
+                                    checked: root.model.hidmode == 0
+                                    text: "Hidden"
+                                    onClicked: root.model.hidmode = 0
+                                }
+                            }
+
+                            Label {
+                                text: "Serial:"
+                            }
+
+                            Label {
+                                text: root.model.serial
+                                font.family: "monospace"
+                            }
+                        }
+
+                        Button {
+                            Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                            text: "OK"
+                            onClicked: {
+                                padInfo.close();
                             }
                         }
                     }
@@ -124,7 +140,7 @@ ApplicationWindow {
     }
 
     footer: ToolBar {
-        Text {
+        Label {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
             text: root.model.message
         }
@@ -138,7 +154,7 @@ ApplicationWindow {
             ColumnLayout {
                 anchors.centerIn: parent
 
-                Text {
+                Label {
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     text: "No pad connected."
                 }
@@ -151,98 +167,119 @@ ApplicationWindow {
             }
         }
 
-        ColumnLayout {
-            spacing: 8
-
-            RowLayout {
-                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                Layout.fillWidth: true
-                Layout.topMargin: 8
-                Layout.leftMargin: 8
-                Layout.rightMargin: 8
-
-                spacing: 16
-
-                Item {
-                    Layout.fillWidth: true
-                    Layout.horizontalStretchFactor: 1089
-                }
-
-                ProfileView {
-                    profileId: 0
-                    model: root.model
-                }
-
-                ProfileView {
-                    profileId: 1
-                    model: root.model
-                }
-
-                ProfileView {
-                    profileId: 2
-                    model: root.model
-                }
-
-                ProfileView {
-                    profileId: 3
-                    model: root.model
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                    Layout.horizontalStretchFactor: 868
-                }
-
-                Button {
-                    action: Action {
-                        text: "Save"
-                        shortcut: "Ctrl+S"
-                        enabled: root.model.has_changes
-                        onTriggered: root.model.save_changes()
-                    }
-                }
-
-                Button {
-                    action: Action {
-                        text: "Revert"
-                        shortcut: "Ctrl+Z"
-                        enabled: root.model.has_changes
-                        onTriggered: root.model.revert_changes()
-                    }
-                }
-            }
-
-            RowLayout {
-                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                uniformCellSizes: true
+        Rectangle {
+            color: root.palette.active.base
+            ColumnLayout {
+                anchors.fill: parent
                 spacing: 8
 
-                PanelView {
+                RowLayout {
                     Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    panel: root.model.panel0
+                    Layout.topMargin: 8
+                    Layout.leftMargin: 8
+                    Layout.rightMargin: 8
+                    spacing: 0
+
+                    Item {
+                        implicitWidth: buttonsRow.implicitWidth
+                    }
+
+                    Item {
+                        Layout.minimumWidth: 8
+                        Layout.fillWidth: true
+                    }
+
+                    Row {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                        spacing: 8
+
+                        ProfileView {
+                            profileId: 0
+                            model: root.model
+                        }
+
+                        ProfileView {
+                            profileId: 1
+                            model: root.model
+                        }
+
+                        ProfileView {
+                            profileId: 2
+                            model: root.model
+                        }
+
+                        ProfileView {
+                            profileId: 3
+                            model: root.model
+                        }
+                    }
+
+                    Item {
+                        Layout.minimumWidth: 8
+                        Layout.fillWidth: true
+                    }
+
+                    Row {
+                        id: buttonsRow
+                        Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                        spacing: 8
+
+                        Button {
+                            action: Action {
+                                text: "Save"
+                                shortcut: "Ctrl+S"
+                                enabled: root.model.has_changes
+                                onTriggered: root.model.save_changes()
+                            }
+                        }
+
+                        Button {
+                            action: Action {
+                                text: "Revert"
+                                shortcut: "Ctrl+Z"
+                                enabled: root.model.has_changes
+                                onTriggered: root.model.revert_changes()
+                            }
+                        }
+                    }
                 }
 
-                PanelView {
+                RowLayout {
                     Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    panel: root.model.panel1
+                    Layout.leftMargin: 8
+                    Layout.rightMargin: 8
+                    Layout.bottomMargin: 8
+                    uniformCellSizes: true
+                    spacing: 8
+
+                    PanelView {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        panel: root.model.panel0
+                    }
+
+                    PanelView {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        panel: root.model.panel1
+                    }
+
+                    PanelView {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        panel: root.model.panel2
+                    }
+
+                    PanelView {
+                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        panel: root.model.panel3
+                    }
                 }
 
-                PanelView {
-                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                    Layout.fillWidth: true
+                Item {
                     Layout.fillHeight: true
-                    panel: root.model.panel2
-                }
-
-                PanelView {
-                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    panel: root.model.panel3
                 }
             }
         }

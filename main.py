@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import QMetaObject, Qt
+from PySide6.QtCore import QCoreApplication, QMetaObject, Qt
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
@@ -12,6 +12,9 @@ from util import Throttle
 
 def main():
     app = QGuiApplication(sys.argv)
+    app.setApplicationName('decent-configuration-console')
+    app.setApplicationVersion('0.1.0')
+    app.setApplicationDisplayName('Decent Configuration Console')
 
     pad = Pad()
     model = Model()

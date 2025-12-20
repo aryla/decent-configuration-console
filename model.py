@@ -256,7 +256,7 @@ class Panel(QObject):
     def name(self):
         return self._id.name
 
-    @Property(bool, final=True)
+    @Property(bool, notify=pressed_changed, final=True)
     def pressed(self):
         return self._pressed
 

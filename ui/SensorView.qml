@@ -6,13 +6,13 @@ import Model
 Item {
     id: root
     property Sensor sensor
-    implicitHeight: spinMin.y + spinMin.height
+    implicitHeight: bar.implicitHeight + Math.ceil(range.first.implicitHandleHeight / 2) + 2 + spinMin.implicitHeight
 
     ProgressBar {
         id: bar
-        x: range.first.implicitHandleWidth / 2
+        x: 0
         y: 0
-        width: parent.width - range.first.implicitHandleWidth / 2 - range.second.implicitHandleWidth / 2
+        width: parent.width
         height: 24
         implicitHeight: 24
         value: root.sensor.level
@@ -23,7 +23,7 @@ Item {
         height: bar.height
         anchors.left: bar.left
         width: root.sensor.range.min * bar.width
-        color: "#777"
+        color: "#7f7f7f"
         opacity: 0.8
     }
 
@@ -32,17 +32,17 @@ Item {
         height: bar.height
         anchors.right: bar.right
         width: (1 - root.sensor.range.max) * bar.width
-        color: "#777"
+        color: "#7f7f7f"
         opacity: 0.8
     }
 
     RangeSlider {
         id: range
-        x: 0
-        y: bar.height - first.implicitHandleHeight / 2
+        x: -Math.floor(first.implicitHandleHeight / 2)
+        y: bar.height - Math.floor(first.implicitHandleHeight / 2)
         from: 0
         to: 1
-        width: parent.width
+        width: parent.width + first.implicitHandleHeight
         first.value: root.sensor.range.min
         second.value: root.sensor.range.max
         background: null
