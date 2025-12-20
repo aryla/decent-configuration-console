@@ -198,13 +198,13 @@ class Pad(QObject):
         self.readings.emit(Readings(panel, pressed != 0, x, y, (left, right)))
 
     @Slot(PanelId, int, CurvePoint)
-    @throttle_key(lambda *args: args)
+    @throttle_key(lambda panel, index, p: (panel, index, p))
     @handle_errors
     def add_curve_point(self, panel: PanelId, index: int, p: CurvePoint):
         self.usb.send(struct.pack('< BBBff', 0x88, panel.value, index, p.x, p.y))
 
     @Slot(PanelId, int, CurvePoint)
-    @throttle_key(lambda panel: panel)
+    @throttle_key(lambda panel, index, _: (panel, index))
     @handle_errors
     def set_curve_point(self, panel: PanelId, index: int, p: CurvePoint):
         self.usb.send(struct.pack('< BBBff', 0x8A, panel.value, index, p.x, p.y))
@@ -214,6 +214,18 @@ class Pad(QObject):
     @handle_errors
     def reset_curve(self, panel: PanelId):
         self.usb.send(struct.pack('< BB', 0x8B, panel.value))
+        self.get_curve(panel)
+
+    @Slot(PanelId, Curve)
+    @throttle_key(lambda panel, _: panel)
+    @handle_errors
+    def set_curve(self, panel: PanelId, curve: Curve):
+        self.usb.send(struct.pack('< BB', 0x8B, panel.value))
+        for i, p in enumerate(curve.points):
+            if i < 2:
+                self.usb.send(struct.pack('< BBBff', 0x8A, panel.value, i, p.x, p.y))
+            else:
+                self.usb.send(struct.pack('< BBBff', 0x88, panel.value, i, p.x, p.y))
         self.get_curve(panel)
 
     @Slot(PanelId)
@@ -231,7 +243,7 @@ class Pad(QObject):
         self.usb.send(struct.pack('< BBH', 0x91, panel.value, sensitivity.sensitivity))
 
     @Slot(PanelId)
-    @throttle_key(lambda panel, _: panel)
+    @throttle_key(lambda panel: panel)
     @handle_errors
     def get_band(self, panel: PanelId):
         response = self.usb.send(struct.pack('< BB', 0x92, panel.value))

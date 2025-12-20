@@ -9,6 +9,7 @@ from datatypes import (
     Changes,
     Curve,
     CurveBand,
+    CurvePoint,
     HidMode,
     PanelId,
     ProfileId,
@@ -33,15 +34,20 @@ def Property(*args, **kwargs) -> Callable[[object], property]:
 
 
 @QmlElement
-class CurveView(QObject):
+class CurveModel(QObject):
     below_changed = Signal()
     above_changed = Signal()
     points_changed = Signal()
 
-    band_set = Signal()
+    band_set = Signal(PanelId, CurveBand)
+    curve_reset = Signal(PanelId)
+    curve_set = Signal(PanelId, Curve)
+    point_added = Signal(PanelId, int, CurvePoint)
+    point_moved = Signal(PanelId, int, CurvePoint)
 
-    def __init__(self, parent):
+    def __init__(self, parent: QObject | None, id: PanelId):
         super().__init__(parent)
+        self._id = id
         self._points = list[QPointF]()
         self._below = 0.025
         self._above = 0.025
@@ -55,7 +61,7 @@ class CurveView(QObject):
         if self._below != x:
             self._below = x
             self.below_changed.emit()
-            self.band_set.emit()
+            self.band_set.emit(self._id, CurveBand(self._below, self._above))
 
     @Property(float, notify=above_changed, final=True)
     def above(self):
@@ -66,11 +72,45 @@ class CurveView(QObject):
         if self._above != x:
             self._above = x
             self.above_changed.emit()
-            self.band_set.emit()
+            self.band_set.emit(self._id, CurveBand(self._below, self._above))
 
     @Property(list, notify=points_changed, final=True)
     def points(self):
         return self._points
+
+    @Slot(int, float, float)
+    def add_point(self, index: int, x: float, y: float):
+        assert len(self._points) < 10
+        assert index == 0 or x >= self._points[index - 1].x() + 0.01
+        assert index == len(self._points) or x <= self._points[index].x() - 0.01
+        self._points.insert(index, QPointF(x, y))
+        self.points_changed.emit()
+        self.point_added.emit(self._id, index, CurvePoint(x, y))
+
+    @Slot(int, float, float)
+    def move_point(self, index: int, x: float, y: float):
+        assert index == 0 or x >= self._points[index - 1].x() + 0.01
+        assert index == len(self._points) - 1 or x <= self._points[index + 1].x() - 0.01
+        self._points[index] = QPointF(x, y)
+        self.points_changed.emit()
+        self.point_moved.emit(self._id, index, CurvePoint(x, y))
+
+    @Slot(int)
+    def remove_point(self, index):
+        assert len(self._points) > 2
+        self._points.pop(index)
+        self.points_changed.emit()
+        self.curve_set.emit(
+            self._id,
+            Curve(
+                CurveBand(self._below, self._above),
+                [CurvePoint(p.x(), p.y()) for p in self._points],
+            ),
+        )
+
+    @Slot()
+    def reset_points(self):
+        self.curve_reset.emit(self._id)
 
     @Slot(CurveBand)
     def pad_band(self, band: CurveBand):
@@ -187,7 +227,7 @@ class Panel(QObject):
     def __init__(self, parent, id: PanelId, sensor1_name: str, sensor2_name: str, flipped: bool):
         super().__init__(parent)
         self._id = id
-        self._curve = CurveView(self)
+        self._curve = CurveModel(self, id)
         self._dot = QPointF(0.0, -10.0)
         self._flipped = flipped
         self._pressed = False
@@ -204,7 +244,7 @@ class Panel(QObject):
                 )
             )
 
-    @Property(CurveView, constant=True, final=True)
+    @Property(CurveModel, constant=True, final=True)
     def curve(self):
         return self._curve
 
@@ -265,8 +305,13 @@ class Model(QObject):
     serial_changed = Signal()
 
     alias_set = Signal(str)
+    curve_band_set = Signal(PanelId, CurveBand)
     changes_reverted = Signal(Changes)
     changes_saved = Signal(Changes)
+    curve_point_added = Signal(PanelId, int, CurvePoint)
+    curve_point_moved = Signal(PanelId, int, CurvePoint)
+    curve_reset = Signal(PanelId)
+    curve_set = Signal(PanelId, Curve)
     do_connect = Signal()
     do_disconnect = Signal()
     hidmode_set = Signal(HidMode)
@@ -294,8 +339,19 @@ class Model(QObject):
         for panel in self.panels:
             panel.range_set.connect(self.range_set)
             panel.sensitivity_set.connect(self.sensitivity_set)
+            panel.curve.band_set.connect(self.curve_band_set)
+            panel.curve.curve_reset.connect(self.curve_reset)
+            panel.curve.curve_set.connect(self.curve_set)
+            panel.curve.point_moved.connect(self.curve_point_moved)
+            panel.curve.point_added.connect(self.curve_point_added)
+
             panel.range_set.connect(self._handle_change)
             panel.sensitivity_set.connect(self._handle_change)
+            panel.curve.band_set.connect(self._handle_change)
+            panel.curve.curve_reset.connect(self._handle_change)
+            panel.curve.curve_set.connect(self._handle_change)
+            panel.curve.point_moved.connect(self._handle_change)
+            panel.curve.point_added.connect(self._handle_change)
 
     @Property(str, notify=alias_changed, final=True)
     def alias(self):
