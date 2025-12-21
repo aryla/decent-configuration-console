@@ -2,6 +2,8 @@
 name = "decent-configuration-console"
 version = "0.1.0"
 description = "Unofficial configuration app for the BlueCombo Halfpad"
+license = "GPL-3.0-or-later"
+icense-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
