@@ -87,7 +87,16 @@ Item {
     }
 
     Label {
-        text: root.sensor.name
-        anchors.centerIn: bar
+        text: root.sensor.name + ":"
+        anchors.verticalCenter: bar.verticalCenter
+        anchors.right: bar.horizontalCenter
+    }
+
+    Label {
+        text: (root.sensor.level * 100).toFixed(1)
+        anchors.verticalCenter: bar.verticalCenter
+        anchors.left: bar.horizontalCenter
+        width: 36
+        horizontalAlignment: Text.AlignRight
     }
 }
