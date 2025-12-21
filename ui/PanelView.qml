@@ -19,7 +19,7 @@ Page {
             focused();
     }
 
-    implicitHeight: header.height + content.height + 8
+    implicitHeight: header.height + content.height
 
     background: Rectangle {
         radius: 8
@@ -60,10 +60,8 @@ Page {
         x: 8
         y: 0
         width: parent.width - 16
-        implicitHeight: curve.height + spacing + sensor0.height + spacing + sensor1.height + sensitivity.height
+        implicitHeight: curve.height + controlsColumn.height + 16
         height: implicitHeight
-
-        property int spacing: 8
 
         CurveView {
             id: curve
@@ -71,41 +69,38 @@ Page {
             x: 0
             y: 0
             width: parent.width
-            height: Math.min(Math.ceil(parent.width / 2), root.maximumHeight - 56 - sensor0.height - sensor1.height - sensitivity.height)
+            height: Math.min(Math.ceil(parent.width / 2), root.maximumHeight - 56 - controlsColumn.height)
         }
 
-        SensorView {
-            id: sensor0
-            sensor: root.panel.sensor0
+        Column {
+            id: controlsColumn
             x: 0
-            y: curve.y + curve.height + parent.spacing
+            y: curve.height + 8
             width: parent.width
-            height: implicitHeight
-        }
+            spacing: 8
 
-        SensorView {
-            id: sensor1
-            sensor: root.panel.sensor1
-            x: 0
-            y: sensor0.y + sensor0.height + parent.spacing
-            width: parent.width
-            height: implicitHeight
-        }
+            ColumnLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                spacing: 16
+                Repeater {
+                    model: 2
+                    SensorView {
+                        Layout.fillWidth: true
+                        required property int index
+                        sensor: root.panel.sensors[index]
+                        isMaximized: root.isMaximized
+                    }
+                }
+            }
 
-        Item {
-            id: sensitivity
-            x: 0
-            y: sensor1.y + sensor1.height
-            width: parent.width
-            implicitHeight: sensitivityLabel.implicitHeight + sensitivitySpin.implicitHeight
-            height: implicitHeight
+            Item {
+                implicitHeight: 8
+            }
 
             Label {
-                id: sensitivityLabel
-                x: 0
-                y: 0
-                width: parent.width
-                height: implicitHeight
+                anchors.left: parent.left
+                anchors.right: parent.right
                 leftPadding: 0
                 rightPadding: 0
                 topPadding: 0
@@ -114,34 +109,40 @@ Page {
                 text: "Sensitivity"
             }
 
-            Slider {
-                id: sensitivitySlider
-                x: 0
-                y: sensitivitySpin.y + Math.floor(sensitivitySpin.implicitHeight / 2) - Math.floor(implicitHeight / 2)
-                width: parent.width - 48 - 8
-                height: implicitHeight
-                from: 0
-                to: 1
-                value: root.panel.sensitivity
+            RowLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                spacing: 8
 
-                onMoved: {
-                    root.panel.sensitivity = value;
+                Item {
+                    implicitWidth: 48
+                    visible: root.isMaximized
                 }
-            }
 
-            SpinBox {
-                id: sensitivitySpin
-                x: parent.width - 48
-                y: sensitivityLabel.height
-                width: 48
-                height: implicitHeight
-                from: 0
-                to: 100
-                value: root.panel.sensitivity * 100
-                editable: true
+                Slider {
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 1
+                    value: root.panel.sensitivity
 
-                onValueModified: {
-                    root.panel.sensitivity = value / 100;
+                    onMoved: {
+                        root.panel.sensitivity = value;
+                    }
+                }
+
+                SpinBox {
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                    implicitWidth: 48
+                    from: 0
+                    to: 100
+                    value: root.panel.sensitivity * 100
+                    editable: true
+                    visible: root.isMaximized
+
+                    onValueModified: {
+                        root.panel.sensitivity = value / 100;
+                    }
                 }
             }
         }

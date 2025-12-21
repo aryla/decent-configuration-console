@@ -232,14 +232,14 @@ class Panel(QObject):
         self._flipped = flipped
         self._pressed = False
         self._sensitivity = 0
-        self.sensors = (Sensor(self, sensor1_name), Sensor(self, sensor2_name))
-        for sensor in self.sensors:
+        self._sensors = (Sensor(self, sensor1_name), Sensor(self, sensor2_name))
+        for sensor in self._sensors:
             sensor._range.range_set.connect(
                 lambda: self.range_set.emit(
                     self._id,
                     (
-                        SensorRange(self.sensors[0]._range._min, self.sensors[0]._range._max),
-                        SensorRange(self.sensors[1]._range._min, self.sensors[1]._range._max),
+                        SensorRange(self._sensors[0]._range._min, self._sensors[0]._range._max),
+                        SensorRange(self._sensors[1]._range._min, self._sensors[1]._range._max),
                     ),
                 )
             )
@@ -260,13 +260,12 @@ class Panel(QObject):
     def pressed(self):
         return self._pressed
 
-    @Property(Sensor, constant=True, final=True)
-    def sensor0(self):
-        return self.sensors[1 if self._flipped else 0]
-
-    @Property(Sensor, constant=True, final=True)
-    def sensor1(self):
-        return self.sensors[0 if self._flipped else 1]
+    @Property(list, constant=True, final=True)
+    def sensors(self):
+        if self._flipped:
+            return list(reversed(self._sensors))
+        else:
+            return list(self._sensors)
 
     @Property(float, notify=sensitivity_changed, final=True)
     def sensitivity(self):
@@ -287,7 +286,7 @@ class Panel(QObject):
         self.pressed_changed.emit()
         self.dot_changed.emit()
         for i in range(2):
-            self.sensors[i].pad_level(readings.sensors[i])
+            self._sensors[i].pad_level(readings.sensors[i])
 
     @Slot(Sensitivity)
     def pad_sensitivity(self, sensitivity: Sensitivity):
@@ -481,7 +480,7 @@ class Model(QObject):
     @Slot(PanelId, tuple)
     def pad_ranges(self, panel: PanelId, ranges: tuple[SensorRange, SensorRange]):
         for i in range(2):
-            self._panels[panel.value].sensors[i]._range.pad_range(ranges[i])
+            self._panels[panel.value]._sensors[i]._range.pad_range(ranges[i])
 
     @Slot(Readings)
     def pad_readings(self, readings: Readings):
