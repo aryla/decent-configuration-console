@@ -9,13 +9,17 @@ Page {
     property Panel panel
     implicitHeight: Math.ceil(width / 2)
 
+    background: null
+
     GraphsView {
         id: graph
-        anchors.fill: parent
+        anchors.centerIn: parent
         marginBottom: 0
         marginLeft: 0
         marginRight: 0
         marginTop: 0
+        width: Math.min(parent.width, 2 * parent.height)
+        height: Math.min(Math.ceil(parent.width / 2), parent.height)
 
         theme: GraphsTheme {
             backgroundVisible: false

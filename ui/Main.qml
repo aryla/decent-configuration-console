@@ -11,10 +11,14 @@ ApplicationWindow {
     visible: true
 
     property Model model
+    property int focusedPanel: 0
+    property bool maximized: false
 
     header: ToolBar {
         topPadding: 8
         bottomPadding: 8
+        leftPadding: 8
+        rightPadding: 8
 
         RowLayout {
             anchors.fill: parent
@@ -146,31 +150,49 @@ ApplicationWindow {
         }
     }
 
-    StackLayout {
+    Rectangle {
         anchors.fill: parent
-        currentIndex: root.model.connected ? 1 : 0
+        color: root.palette.active.base
 
-        Item {
-            ColumnLayout {
-                anchors.centerIn: parent
+        StackLayout {
+            id: mainStack
+            anchors.fill: parent
+            currentIndex: root.model.connected ? 1 : 0
 
-                Label {
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                    text: "No pad connected."
-                }
+            Item {
+                Page {
+                    anchors.centerIn: parent
+                    topPadding: 16
+                    bottomPadding: 16
+                    leftPadding: 16
+                    rightPadding: 16
 
-                Button {
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-                    text: "Connect"
-                    onClicked: root.model.do_connect()
+                    background: Rectangle {
+                        radius: 8
+                        color: root.palette.active.window
+                    }
+
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 8
+
+                        Label {
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                            text: "No pad connected."
+                        }
+
+                        Button {
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                            text: "Connect"
+                            onClicked: root.model.do_connect()
+                        }
+                    }
                 }
             }
-        }
 
-        Rectangle {
-            color: root.palette.active.base
             ColumnLayout {
-                anchors.fill: parent
+                Layout.fillWidth: true
+                Layout.fillHeight: true
                 spacing: 8
 
                 RowLayout {
@@ -194,24 +216,13 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignTop | Qt.AlignRight
                         spacing: 8
 
-                        ProfileView {
-                            profileId: 0
-                            model: root.model
-                        }
-
-                        ProfileView {
-                            profileId: 1
-                            model: root.model
-                        }
-
-                        ProfileView {
-                            profileId: 2
-                            model: root.model
-                        }
-
-                        ProfileView {
-                            profileId: 3
-                            model: root.model
+                        Repeater {
+                            model: 4
+                            ProfileView {
+                                required property int index
+                                profileId: index
+                                model: root.model
+                            }
                         }
                     }
 
@@ -245,41 +256,59 @@ ApplicationWindow {
                     }
                 }
 
-                RowLayout {
-                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                StackLayout {
+                    id: panelsStack
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     Layout.leftMargin: 8
                     Layout.rightMargin: 8
                     Layout.bottomMargin: 8
-                    uniformCellSizes: true
-                    spacing: 8
+                    currentIndex: root.maximized ? 1 : 0
+                    property int panelMaxHeight: mainStack.height - 52
 
-                    PanelView {
+                    RowLayout {
                         Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        panel: root.model.panel0
+                        uniformCellSizes: true
+                        spacing: 8
+
+                        Repeater {
+                            model: 4
+
+                            PanelView {
+                                required property int index
+                                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                                Layout.fillWidth: true
+                                Layout.maximumHeight: panelsStack.panelMaxHeight
+                                panel: root.model.panels[index]
+                                isMaximized: root.maximized
+
+                                onFocused: root.focusedPanel = index
+
+                                onMaximized: {
+                                    root.focusedPanel = index;
+                                    root.maximized = true;
+                                }
+                            }
+                        }
                     }
 
-                    PanelView {
-                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        panel: root.model.panel1
-                    }
+                    StackLayout {
+                        currentIndex: root.focusedPanel
 
-                    PanelView {
-                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        panel: root.model.panel2
-                    }
+                        Repeater {
+                            model: 4
+                            PanelView {
+                                required property int index
+                                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                                Layout.fillWidth: true
+                                Layout.maximumHeight: panelsStack.panelMaxHeight
+                                panel: root.model.panels[index]
+                                isMaximized: root.maximized
 
-                    PanelView {
-                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        panel: root.model.panel3
+                                onUnmaximized: root.maximized = false
+                            }
+                        }
                     }
-                }
-
-                Item {
-                    Layout.fillHeight: true
                 }
             }
         }

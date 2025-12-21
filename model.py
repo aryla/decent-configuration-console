@@ -330,14 +330,14 @@ class Model(QObject):
         self._profile = -1
         self._serial = 0
 
-        self.panels = (
+        self._panels = (
             Panel(self, PanelId.Left, 'Back', 'Front', flipped=True),
             Panel(self, PanelId.Down, 'Right', 'Left', flipped=True),
             Panel(self, PanelId.Up, 'Left', 'Right', flipped=False),
             Panel(self, PanelId.Right, 'Front', 'Back', flipped=False),
         )
 
-        for panel in self.panels:
+        for panel in self._panels:
             panel.range_set.connect(self.range_set)
             panel.sensitivity_set.connect(self.sensitivity_set)
             panel.curve.band_set.connect(self.curve_band_set)
@@ -412,21 +412,9 @@ class Model(QObject):
             self.profile_changed.emit()
             self.profile_set.emit(ProfileId(x))
 
-    @Property(Panel, constant=True, final=True)
-    def panel0(self):
-        return self.panels[0]
-
-    @Property(Panel, constant=True, final=True)
-    def panel1(self):
-        return self.panels[1]
-
-    @Property(Panel, constant=True, final=True)
-    def panel2(self):
-        return self.panels[2]
-
-    @Property(Panel, constant=True, final=True)
-    def panel3(self):
-        return self.panels[3]
+    @Property(list, constant=True, final=True)
+    def panels(self):
+        return list(self._panels)
 
     @Property(int, notify=serial_changed, final=True)
     def serial(self):
@@ -458,7 +446,7 @@ class Model(QObject):
 
     @Slot(PanelId, CurveBand)
     def pad_band(self, panel: PanelId, band: CurveBand):
-        self.panels[panel.value].curve.pad_band(band)
+        self._panels[panel.value].curve.pad_band(band)
 
     @Slot(Changes)
     def pad_changes(self, changes: Changes):
@@ -473,7 +461,7 @@ class Model(QObject):
 
     @Slot(PanelId, Curve)
     def pad_curve(self, panel: PanelId, curve: Curve):
-        self.panels[panel.value].curve.pad_curve(curve)
+        self._panels[panel.value].curve.pad_curve(curve)
 
     @Slot()
     def pad_disconnected(self):
@@ -493,11 +481,11 @@ class Model(QObject):
     @Slot(PanelId, tuple)
     def pad_ranges(self, panel: PanelId, ranges: tuple[SensorRange, SensorRange]):
         for i in range(2):
-            self.panels[panel.value].sensors[i]._range.pad_range(ranges[i])
+            self._panels[panel.value].sensors[i]._range.pad_range(ranges[i])
 
     @Slot(Readings)
     def pad_readings(self, readings: Readings):
-        self.panels[readings.panel.value].pad_readings(readings)
+        self._panels[readings.panel.value].pad_readings(readings)
 
     @Slot(int)
     def pad_serial(self, serial: int):
@@ -506,7 +494,7 @@ class Model(QObject):
 
     @Slot(PanelId, Sensitivity)
     def pad_sensitivity(self, panel: PanelId, sensitivity: Sensitivity):
-        self.panels[panel.value].pad_sensitivity(sensitivity)
+        self._panels[panel.value].pad_sensitivity(sensitivity)
 
     @Slot(str)
     def pad_error(self, error: str):

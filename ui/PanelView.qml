@@ -1,11 +1,24 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 import Model
 
 Page {
     id: root
     property Panel panel
+    property bool isMaximized
+    property double maximumHeight: Layout.maximumHeight
+
+    signal focused
+    signal maximized
+    signal unmaximized
+
+    onActiveFocusChanged: {
+        if (activeFocus)
+            focused();
+    }
+
     implicitHeight: header.height + content.height + 8
 
     background: Rectangle {
@@ -18,6 +31,27 @@ Page {
         Label {
             anchors.centerIn: parent
             text: root.panel.name
+        }
+
+        Button {
+            x: parent.width - 8 - implicitWidth
+            y: Math.floor(parent.height / 2) - Math.floor(implicitHeight / 2)
+            implicitWidth: implicitHeight
+            height: implicitHeight
+            width: implicitWidth
+            visible: !root.isMaximized
+            text: "M"
+            onClicked: root.maximized()
+        }
+
+        Button {
+            x: parent.width - 8 - implicitWidth
+            y: Math.floor(parent.height / 2) - Math.floor(implicitHeight / 2)
+            height: implicitHeight
+            width: implicitWidth
+            visible: root.isMaximized
+            text: "Back"
+            onClicked: root.unmaximized()
         }
     }
 
@@ -37,7 +71,7 @@ Page {
             x: 0
             y: 0
             width: parent.width
-            height: Math.ceil(parent.width / 2)
+            height: Math.min(Math.ceil(parent.width / 2), root.maximumHeight - 56 - sensor0.height - sensor1.height - sensitivity.height)
         }
 
         SensorView {
