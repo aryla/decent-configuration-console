@@ -26,7 +26,7 @@ Page {
         x: 8
         y: 0
         width: parent.width - 16
-        implicitHeight: curve.y + curve.height + sensor0.height + sensor1.height + sensitivity.height + 3 * spacing
+        implicitHeight: curve.height + spacing + sensor0.height + spacing + sensor1.height + sensitivity.height
         height: implicitHeight
 
         property int spacing: 8
@@ -61,19 +61,33 @@ Page {
         Item {
             id: sensitivity
             x: 0
-            y: sensor1.y + sensor1.height + parent.spacing
+            y: sensor1.y + sensor1.height
             width: parent.width
-            implicitHeight: sensitivitySpin.implicitHeight
+            implicitHeight: sensitivityLabel.implicitHeight + sensitivitySpin.implicitHeight
             height: implicitHeight
+
+            Label {
+                id: sensitivityLabel
+                x: 0
+                y: 0
+                width: parent.width
+                height: implicitHeight
+                leftPadding: 0
+                rightPadding: 0
+                topPadding: 0
+                bottomPadding: 0
+                horizontalAlignment: Text.AlignHCenter
+                text: "Sensitivity"
+            }
 
             Slider {
                 id: sensitivitySlider
                 x: 0
-                y: Math.floor(sensitivitySpin.implicitHeight / 2) - Math.floor(implicitHeight / 2)
+                y: sensitivitySpin.y + Math.floor(sensitivitySpin.implicitHeight / 2) - Math.floor(implicitHeight / 2)
                 width: parent.width - 48 - 8
                 height: implicitHeight
                 from: 0
-                to: 1000
+                to: 1
                 value: root.panel.sensitivity
 
                 onMoved: {
@@ -84,15 +98,16 @@ Page {
             SpinBox {
                 id: sensitivitySpin
                 x: parent.width - 48
-                y: 0
+                y: sensitivityLabel.height
                 width: 48
                 height: implicitHeight
                 from: 0
-                to: 1000
-                value: root.panel.sensitivity
+                to: 100
+                value: root.panel.sensitivity * 100
+                editable: true
 
                 onValueModified: {
-                    root.panel.sensitivity = value;
+                    root.panel.sensitivity = value / 100;
                 }
             }
         }

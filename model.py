@@ -268,14 +268,15 @@ class Panel(QObject):
     def sensor1(self):
         return self.sensors[0 if self._flipped else 1]
 
-    @Property(int, notify=sensitivity_changed, final=True)
+    @Property(float, notify=sensitivity_changed, final=True)
     def sensitivity(self):
-        return self._sensitivity
+        return self._sensitivity / 1000.0
 
     @sensitivity.setter
     def sensitivity(self, x):
-        if self._sensitivity != x:
-            self._sensitivity = x
+        i = math.ceil(x * 1000.0)
+        if self._sensitivity != i:
+            self._sensitivity = i
             self.sensitivity_changed.emit()
             self.sensitivity_set.emit(self._id, Sensitivity(self._sensitivity))
 

@@ -65,6 +65,7 @@ Item {
         from: 0
         to: root.sensor.range.min_limit * 100
         value: root.sensor.range.min * 100
+        editable: true
 
         onValueModified: {
             root.sensor.range.min = value / 100;
@@ -80,6 +81,7 @@ Item {
         from: root.sensor.range.max_limit * 100
         to: 100
         value: root.sensor.range.max * 100
+        editable: true
 
         onValueModified: {
             root.sensor.range.max = value / 100;
