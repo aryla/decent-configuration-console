@@ -8,7 +8,7 @@ Page {
     id: root
     property Panel panel
     property bool isMaximized
-    property double maximumHeight: Layout.maximumHeight
+    property double maximumContentHeight: Layout.maximumHeight - (topPadding + header.implicitHeight + bottomPadding)
 
     signal focused
     signal maximized
@@ -19,7 +19,11 @@ Page {
             focused();
     }
 
-    implicitHeight: header.height + content.height
+    implicitHeight: topPadding + header.height + content.height + bottomPadding
+    topPadding: 8
+    bottomPadding: 16
+    leftPadding: 8
+    rightPadding: 8
 
     background: Rectangle {
         radius: 8
@@ -27,7 +31,8 @@ Page {
     }
 
     header: Item {
-        height: 32
+        implicitHeight: 32
+        height: implicitHeight
         Label {
             anchors.centerIn: parent
             text: root.panel.name
@@ -57,27 +62,117 @@ Page {
 
     Item {
         id: content
-        x: 8
-        y: 0
-        width: parent.width - 16
-        implicitHeight: curve.height + controlsColumn.height + 16
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        implicitHeight: curve.height + controlsColumn.height
         height: implicitHeight
 
-        CurveView {
-            id: curve
-            panel: root.panel
-            x: 0
-            y: 0
-            width: parent.width
-            height: Math.min(Math.ceil(parent.width / 2), root.maximumHeight - 56 - controlsColumn.height)
+        Item {
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: curve.width + (root.isMaximized ? band.implicitWidth : 0)
+            height: curve.height
+
+            CurveView {
+                id: curve
+                panel: root.panel
+                property int maximumWidth: content.width - (root.isMaximized ? band.implicitWidth : 0)
+                property int maximumHeight: root.maximumContentHeight - controlsColumn.height
+                x: 0
+                y: 0
+                height: Math.min(Math.floor(maximumWidth / 2), maximumHeight)
+                width: Math.min(maximumWidth, 2 * maximumHeight)
+            }
+
+            ColumnLayout {
+                id: band
+                y: 0
+                x: curve.x + curve.width
+                height: curve.height
+                width: 8 + 48 + 8
+                spacing: 8
+                visible: root.isMaximized
+
+                SpinBox {
+                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                    Layout.leftMargin: 4
+                    implicitWidth: 48
+                    from: 0
+                    to: 100
+                    editable: true
+                    value: 100 * root.panel.curve.above / 0.150
+                    onValueModified: root.panel.curve.above = value / 100 * 0.150
+                }
+
+                Row {
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                    Layout.fillHeight: true
+                    leftPadding: 8
+                    spacing: 8
+
+                    ColumnLayout {
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        spacing: 8
+
+                        Slider {
+                            Layout.fillHeight: true
+                            orientation: Qt.Vertical
+                            from: 0
+                            to: 0.150
+                            value: root.panel.curve.above
+                            onMoved: root.panel.curve.above = value
+                        }
+
+                        Slider {
+                            id: bandBelow
+                            Layout.fillHeight: true
+                            orientation: Qt.Vertical
+                            transform: Scale {
+                                origin.y: bandBelow.height / 2
+                                yScale: -1
+                            }
+                            from: 0
+                            to: 0.150
+                            value: root.panel.curve.below
+                            onMoved: root.panel.curve.below = value
+                        }
+                    }
+
+                    Item {
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: bandLabel.implicitHeight
+
+                        Label {
+                            id: bandLabel
+                            anchors.centerIn: parent
+                            rotation: 90
+                            text: "Hysteresis band"
+                        }
+                    }
+                }
+
+                SpinBox {
+                    Layout.alignment: Qt.AlignBottom | Qt.AlignLeft
+                    Layout.leftMargin: 4
+                    implicitWidth: 48
+                    from: -100
+                    to: 0
+                    editable: true
+                    value: -100 * root.panel.curve.below / 0.150
+                    onValueModified: root.panel.curve.below = value / -100 * 0.150
+                }
+            }
         }
 
         Column {
             id: controlsColumn
             x: 0
-            y: curve.height + 8
+            y: curve.height
             width: parent.width
-            spacing: 8
+            topPadding: 24
 
             ColumnLayout {
                 anchors.left: parent.left
@@ -94,16 +189,12 @@ Page {
                 }
             }
 
-            Item {
-                implicitHeight: 8
-            }
-
             Label {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 leftPadding: 0
                 rightPadding: 0
-                topPadding: 0
+                topPadding: 12
                 bottomPadding: 0
                 horizontalAlignment: Text.AlignHCenter
                 text: "Sensitivity"
@@ -125,10 +216,7 @@ Page {
                     from: 0
                     to: 1
                     value: root.panel.sensitivity
-
-                    onMoved: {
-                        root.panel.sensitivity = value;
-                    }
+                    onMoved: root.panel.sensitivity = value
                 }
 
                 SpinBox {
@@ -136,13 +224,10 @@ Page {
                     implicitWidth: 48
                     from: 0
                     to: 100
-                    value: root.panel.sensitivity * 100
                     editable: true
                     visible: root.isMaximized
-
-                    onValueModified: {
-                        root.panel.sensitivity = value / 100;
-                    }
+                    value: root.panel.sensitivity * 100
+                    onValueModified: root.panel.sensitivity = value / 100
                 }
             }
         }
