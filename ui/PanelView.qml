@@ -41,6 +41,16 @@ Page {
         }
 
         Button {
+            x: parent.x + 8
+            y: parent.y + 8
+            height: implicitHeight
+            width: implicitWidth
+            visible: root.isMaximized
+            text: "Reset curve"
+            onClicked: root.panel.curve.reset_points()
+        }
+
+        Button {
             id: maximizeButton
             x: parent.width - 8 - implicitWidth
             y: parent.y + 8
