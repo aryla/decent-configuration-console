@@ -172,13 +172,15 @@ Page {
         anchors.fill: graph
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
-        property int pointMinCount: 2
-        property int pointMaxCount: 10
-        property double pointMinDeltaX: 0.011
-        property double dragMaxDistance: 0.05
 
-        property int dragPointIndex: -1
-        property bool dragIsNewPoint: false
+        final readonly property int pointMinCount: 2
+        final readonly property int pointMaxCount: 10
+        final readonly property double pointMinDeltaX: 0.011
+        final readonly property double grabDistance: 0.1
+        final readonly property int grabDistancePixels: 32
+
+        final property int dragPointIndex: -1
+        final property bool dragIsNewPoint: false
 
         function dragActive() {
             return dragPointIndex >= 0;
@@ -206,6 +208,8 @@ Page {
         }
 
         function nearestPoint(mouse) {
+            if (curve.count === 0)
+                return null;
             const coords = dataCoords(mouse);
             let nearest = null;
             for (let index = 0; index < curve.count; index++) {
@@ -221,7 +225,8 @@ Page {
                     };
                 }
             }
-            if (nearest.distance > dragMaxDistance)
+            const distance = Math.sqrt(nearest.distance);
+            if (distance > grabDistance && distance * graph.plotArea.height > grabDistancePixels)
                 return null;
             return nearest;
         }
