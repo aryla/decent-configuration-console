@@ -153,11 +153,14 @@ class Range(QObject):
 
     @min.setter
     def min(self, x):
-        i = min(self._from_unit_range(x), self._max - self._width_limit)
-        if i != self._min:
-            self._min = i
+        i = self._from_unit_range(x)
+        clamped = min(i, self._max - self._width_limit)
+        if clamped != self._min:
+            self._min = clamped
             self.min_changed.emit()
             self.range_set.emit()
+        elif clamped != i:
+            self.min_changed.emit()
 
     @Property(float, notify=max_changed, final=True)
     def min_limit(self):
@@ -169,11 +172,14 @@ class Range(QObject):
 
     @max.setter
     def max(self, x):
-        i = max(self._from_unit_range(x), self._min + self._width_limit)
-        if i != self._max:
-            self._max = i
+        i = self._from_unit_range(x)
+        clamped = max(self._from_unit_range(x), self._min + self._width_limit)
+        if clamped != self._max:
+            self._max = clamped
             self.max_changed.emit()
             self.range_set.emit()
+        elif clamped != i:
+            self.max_changed.emit()
 
     @Property(float, notify=min_changed, final=True)
     def max_limit(self):

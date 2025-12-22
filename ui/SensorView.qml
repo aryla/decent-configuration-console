@@ -33,6 +33,7 @@ Item {
             Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
             Layout.fillWidth: true
             implicitHeight: bar.implicitHeight + Math.ceil(range.first.implicitHandleHeight / 2) + 3
+            z: 1
 
             ProgressBar {
                 id: bar
