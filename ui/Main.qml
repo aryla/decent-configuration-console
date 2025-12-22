@@ -8,6 +8,8 @@ ApplicationWindow {
     id: root
     width: 960
     height: 540
+    minimumWidth: 720
+    minimumHeight: 520
     visible: true
 
     property Model model
@@ -196,6 +198,7 @@ ApplicationWindow {
                 spacing: 8
 
                 RowLayout {
+                    id: profileRow
                     Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                     Layout.fillWidth: true
                     Layout.topMargin: 8
@@ -264,7 +267,7 @@ ApplicationWindow {
                     Layout.rightMargin: 8
                     Layout.bottomMargin: 8
                     currentIndex: root.maximized ? 1 : 0
-                    property int panelMaxHeight: mainStack.height - 52
+                    property int panelMaxHeight: mainStack.height - profileRow.height - 24
 
                     RowLayout {
                         Layout.alignment: Qt.AlignTop | Qt.AlignHCenter

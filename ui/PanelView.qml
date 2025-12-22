@@ -21,7 +21,7 @@ Page {
 
     implicitHeight: topPadding + header.height + content.height + bottomPadding
     topPadding: 8
-    bottomPadding: 16
+    bottomPadding: 8
     leftPadding: 8
     rightPadding: 8
 
@@ -31,16 +31,19 @@ Page {
     }
 
     header: Item {
-        implicitHeight: 32
+        implicitHeight: 36
         height: implicitHeight
         Label {
-            anchors.centerIn: parent
+            anchors.baseline: maximizeButton.baseline
+            anchors.horizontalCenter: parent.horizontalCenter
+            topPadding: 8
             text: root.panel.name
         }
 
         Button {
+            id: maximizeButton
             x: parent.width - 8 - implicitWidth
-            y: Math.floor(parent.height / 2) - Math.floor(implicitHeight / 2)
+            y: parent.y + 8
             implicitWidth: implicitHeight
             height: implicitHeight
             width: implicitWidth
@@ -51,7 +54,7 @@ Page {
 
         Button {
             x: parent.width - 8 - implicitWidth
-            y: Math.floor(parent.height / 2) - Math.floor(implicitHeight / 2)
+            y: parent.y + 8
             height: implicitHeight
             width: implicitWidth
             visible: root.isMaximized
@@ -81,8 +84,8 @@ Page {
                 property int maximumHeight: root.maximumContentHeight - controlsColumn.height
                 x: 0
                 y: 0
-                height: Math.min(Math.floor(maximumWidth / 2), maximumHeight)
-                width: Math.min(maximumWidth, 2 * maximumHeight)
+                height: Math.max(40, Math.min(Math.floor(maximumWidth / 2), maximumHeight))
+                width: Math.max(80, Math.min(maximumWidth, 2 * maximumHeight))
             }
 
             ColumnLayout {
@@ -213,6 +216,7 @@ Page {
                 Slider {
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                     Layout.fillWidth: true
+                    Layout.preferredHeight: sensitivitySpin.implicitHeight
                     from: 0
                     to: 1
                     value: root.panel.sensitivity
@@ -220,6 +224,7 @@ Page {
                 }
 
                 SpinBox {
+                    id: sensitivitySpin
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                     implicitWidth: 48
                     from: 0
