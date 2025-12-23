@@ -19,12 +19,15 @@ Page {
         marginLeft: 0
         marginRight: 0
         marginTop: 0
+        final property int subTickCount: plotArea.height >= 640 ? 3 : plotArea.height >= 320 ? 1 : 0
 
         theme: GraphsTheme {
             backgroundVisible: false
             plotAreaBackgroundColor: palette.active.base
             grid.mainWidth: 1
             grid.mainColor: palette.active.light
+            grid.subWidth: 1
+            grid.subColor: palette.active.midlight
             seriesColors: [palette.active.text]
         }
 
@@ -33,6 +36,7 @@ Page {
             min: -1
             max: 1
             tickInterval: 0.2
+            subTickCount: graph.subTickCount
             labelsVisible: false
             lineVisible: false
             titleVisible: false
@@ -44,6 +48,7 @@ Page {
             min: 0
             max: 1
             tickInterval: 0.2
+            subTickCount: graph.subTickCount
             labelsVisible: false
             lineVisible: false
             titleVisible: false
