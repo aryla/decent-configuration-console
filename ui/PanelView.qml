@@ -29,6 +29,15 @@ Page {
     background: Rectangle {
         radius: 8
         color: root.panel.pressed ? root.palette.active.light : root.palette.active.window
+
+        Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: 1
+            width: Math.floor(parent.width / 4)
+            color: root.palette.active.highlight
+            visible: root.isFocused && !root.isMaximized
+        }
     }
 
     header: Item {
