@@ -10,6 +10,11 @@ Button {
     property Model model
     checked: root.model.profile == root.profileId
 
+    hoverEnabled: true
+    ToolTip.visible: hovered
+    ToolTip.delay: 1000
+    ToolTip.text: `Switch to profile ${profileId + 1}\n${action.shortcut}`
+
     action: Action {
         text: `Profile ${root.profileId + 1}`
         shortcut: `Ctrl+${root.profileId + 1}`

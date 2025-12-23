@@ -46,8 +46,13 @@ Page {
             height: implicitHeight
             width: implicitWidth
             visible: root.isMaximized
-            text: "Reset curve"
+            text: "Reset"
             onClicked: root.panel.curve.reset_points()
+
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.delay: 1000
+            ToolTip.text: "Reset curve"
         }
 
         Button {
@@ -60,6 +65,11 @@ Page {
             visible: !root.isMaximized
             text: "M"
             onClicked: root.maximized()
+
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.delay: 1000
+            ToolTip.text: "Maximize\nCtrl+M"
         }
 
         Button {
@@ -70,6 +80,11 @@ Page {
             visible: root.isMaximized
             text: "Back"
             onClicked: root.unmaximized()
+
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.delay: 1000
+            ToolTip.text: "Show all panels\nCtrl+M"
         }
     }
 

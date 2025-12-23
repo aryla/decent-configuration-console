@@ -70,6 +70,11 @@ ApplicationWindow {
                 font.family: "monospace"
                 onClicked: padInfo.open()
 
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: "View pad info"
+
                 Popup {
                     id: padInfo
                     modal: true
@@ -275,6 +280,11 @@ ApplicationWindow {
                         spacing: 8
 
                         Button {
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.delay: 1000
+                            ToolTip.text: "Save changes\n" + action.shortcut
+
                             action: Action {
                                 text: "Save"
                                 shortcut: "Ctrl+S"
@@ -284,6 +294,11 @@ ApplicationWindow {
                         }
 
                         Button {
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.delay: 1000
+                            ToolTip.text: "Revert changes\n" + action.shortcut
+
                             action: Action {
                                 text: "Revert"
                                 shortcut: "Ctrl+R"
