@@ -16,6 +16,41 @@ ApplicationWindow {
     property int focusedPanel: 0
     property bool maximized: false
 
+    Shortcut {
+        sequences: ["Ctrl+Left"]
+        onActivated: root.focusedPanel = 0
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+Down"]
+        onActivated: root.focusedPanel = 1
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+Up"]
+        onActivated: root.focusedPanel = 2
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+Right"]
+        onActivated: root.focusedPanel = 3
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+M"]
+        onActivated: root.maximized = !root.maximized
+    }
+
+    Shortcut {
+        sequences: ["Ctrl++", "Ctrl+="]
+        onActivated: root.model.panels[root.focusedPanel].sensitivity += 0.02
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+-"]
+        onActivated: root.model.panels[root.focusedPanel].sensitivity -= 0.02
+    }
+
     header: ToolBar {
         topPadding: 8
         bottomPadding: 8
@@ -251,7 +286,7 @@ ApplicationWindow {
                         Button {
                             action: Action {
                                 text: "Revert"
-                                shortcut: "Ctrl+Z"
+                                shortcut: "Ctrl+R"
                                 enabled: root.model.has_changes
                                 onTriggered: root.model.revert_changes()
                             }

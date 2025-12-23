@@ -145,7 +145,9 @@ class Range(QObject):
         return (x - self._zero) / self._width
 
     def _from_unit_range(self, x: float):
-        return math.ceil(self._zero + x * self._width)
+        return max(
+            self._zero, min(self._zero + self._width, math.ceil(self._zero + x * self._width))
+        )
 
     @Property(float, notify=min_changed, final=True)
     def min(self):
@@ -279,7 +281,7 @@ class Panel(QObject):
 
     @sensitivity.setter
     def sensitivity(self, x):
-        i = math.ceil(x * 1000.0)
+        i = max(0, min(1000, math.ceil(x * 1000.0)))
         if self._sensitivity != i:
             self._sensitivity = i
             self.sensitivity_changed.emit()
