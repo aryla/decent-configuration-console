@@ -7,8 +7,9 @@ import Model
 Page {
     id: root
     property Panel panel
-    implicitHeight: Math.ceil(width / 2)
+    signal focused()
 
+    implicitHeight: Math.ceil(width / 2)
     background: null
 
     GraphsView {
@@ -283,6 +284,8 @@ Page {
         }
 
         onPressed: mouse => {
+            root.focused();
+
             if (dragActive() && mouse.button !== Qt.LeftButton) {
                 cancelDrag();
                 return;
@@ -328,6 +331,8 @@ Page {
         }
 
         onReleased: mouse => {
+            root.focused();
+
             if (!dragActive())
                 return;
             const coords = dataCoords(mouse);

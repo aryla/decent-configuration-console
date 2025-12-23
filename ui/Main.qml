@@ -334,6 +334,7 @@ ApplicationWindow {
                                 Layout.maximumHeight: panelsStack.panelMaxHeight
                                 panel: root.model.panels[index]
                                 isMaximized: root.maximized
+                                isFocused: root.focusedPanel == index
 
                                 onFocused: root.focusedPanel = index
 
@@ -357,6 +358,7 @@ ApplicationWindow {
                                 Layout.maximumHeight: panelsStack.panelMaxHeight
                                 panel: root.model.panels[index]
                                 isMaximized: root.maximized
+                                isFocused: root.focusedPanel == index
 
                                 onUnmaximized: root.maximized = false
                             }

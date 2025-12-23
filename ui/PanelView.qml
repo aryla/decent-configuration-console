@@ -8,6 +8,7 @@ Page {
     id: root
     property Panel panel
     property bool isMaximized
+    property bool isFocused
     property double maximumContentHeight: Layout.maximumHeight - (topPadding + header.implicitHeight + bottomPadding)
 
     signal focused
@@ -96,6 +97,14 @@ Page {
         implicitHeight: curve.height + controlsColumn.height
         height: implicitHeight
 
+        MouseArea {
+            x: -root.leftPadding
+            y: -(root.topPadding + root.header.height)
+            width: root.width
+            height: root.height
+            onPressed: root.focused()
+        }
+
         Item {
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
@@ -111,6 +120,8 @@ Page {
                 y: 0
                 height: Math.max(40, Math.min(Math.floor(maximumWidth / 2), maximumHeight))
                 width: Math.max(80, Math.min(maximumWidth, 2 * maximumHeight))
+
+                onFocused: root.focused()
             }
 
             ColumnLayout {
