@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import QCoreApplication, QMetaObject, Qt
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
 import rc_resources  # noqa: F401
@@ -15,6 +15,7 @@ def main():
     app.setApplicationName('decent-configuration-console')
     app.setApplicationVersion('0.1.0')
     app.setApplicationDisplayName('Decent Configuration Console')
+    app.setWindowIcon(QIcon(':/decent.svg'))
 
     pad = Pad()
     model = Model()

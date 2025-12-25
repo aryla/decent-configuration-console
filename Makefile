@@ -1,9 +1,8 @@
 RC := rc_resources.py
-QML := $(wildcard ui/*.qml)
 
 all: $(RC)
 
-rc_%.py: %.qrc qtquickcontrols2.conf $(QML)
+rc_%.py: %.qrc qtquickcontrols2.conf decent.svg $(wildcard ui/*.qml)
 	uv run -- pyside6-rcc $< -o $@
 
 run: all

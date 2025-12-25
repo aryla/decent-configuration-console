@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg height="128px" viewBox="0 0 128 128" width="128px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="60" x2="60" y1="0" y2="120">
+        <stop offset="0" stop-color="#deddda"/>
+        <stop offset="1" stop-color="#77767b"/>
+    </linearGradient>
+    <path d="m 0 60 v 4 l 60 60 l 60 -60 v -4 z m 0 0" fill="#5e5c64"/>
+    <path d="m 0 60 l 60 -60 l 60 60 l -60 60 z m 0 0" fill="url(#a)"/>
+    <path d="m 28 60 l -14 14 l 32 32 l 14 -14 l 14 14 l 32 -32 l -14 -14 l 14 -14 l -32 -32 l -14 14 l -14 -14 l -32 32 l 14 14 l 32 -32 l 32 32 l -32 32 z m 0 0" fill="#11151c"/>
+    <path d="m 88 44 v -10 s 0 -2 -2 -2 h -10 c -2 0 -4 2 0 4 s 6 4 8 8 s 4 2 4 0 z m 0 0" fill="#e25d59"/>
+    <path d="m 44 32 h -10 s -2 0 -2 2 v 10 c 0 2 2 4 4 0 s 4 -6 8 -8 s 2 -4 0 -4 z m 0 0" fill="#b259e2"/>
+    <path d="m 76 88 h 10 s 2 0 2 -2 v -10 c 0 -2 -2 -4 -4 0 s -4 6 -8 8 s -2 4 0 4 z m 0 0" fill="#b359e2"/>
+    <path d="m 32 76 v 10 s 0 2 2 2 h 10 c 2 0 4 -2 0 -4 s -6 -4 -8 -8 s -4 -2 -4 0 z m 0 0" fill="#e25d59"/>
+</svg>
