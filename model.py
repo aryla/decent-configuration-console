@@ -45,9 +45,10 @@ class CurveModel(QObject):
     point_added = Signal(PanelId, int, CurvePoint)
     point_moved = Signal(PanelId, int, CurvePoint)
 
-    def __init__(self, parent: QObject | None, id: PanelId):
+    def __init__(self, parent: QObject | None, id: PanelId, mirror: bool):
         super().__init__(parent)
         self._id = id
+        self._mirror = mirror
         self._points = list[QPointF]()
         self._below = 0.025
         self._above = 0.025
@@ -77,6 +78,10 @@ class CurveModel(QObject):
     @Property(list, notify=points_changed, final=True)
     def points(self):
         return self._points
+
+    @Property(bool, constant=True, final=True)
+    def mirror(self):
+        return self._mirror
 
     @Slot(int, float, float)
     def add_point(self, index: int, x: float, y: float):
@@ -235,7 +240,7 @@ class Panel(QObject):
     def __init__(self, parent, id: PanelId, sensor1_name: str, sensor2_name: str, flipped: bool):
         super().__init__(parent)
         self._id = id
-        self._curve = CurveModel(self, id)
+        self._curve = CurveModel(self, id, flipped)
         self._dot = QPointF(0.0, -10.0)
         self._flipped = flipped
         self._pressed = False

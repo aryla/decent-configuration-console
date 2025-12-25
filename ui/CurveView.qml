@@ -7,10 +7,14 @@ import Model
 Page {
     id: root
     property Panel panel
-    signal focused()
+    signal focused
 
     implicitHeight: Math.ceil(width / 2)
     background: null
+    transform: Scale {
+        xScale: root.panel.curve.mirror ? -1 : 1
+        origin.x: root.width / 2
+    }
 
     GraphsView {
         id: graph
