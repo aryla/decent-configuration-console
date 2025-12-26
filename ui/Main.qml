@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.VectorImage
 
 import Model
 
@@ -83,7 +84,7 @@ ApplicationWindow {
                     bottomPadding: 16
                     leftPadding: 16
                     rightPadding: 16
-                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
                     Overlay.modal: Rectangle {
                         color: "#7f000000"
@@ -162,10 +163,6 @@ ApplicationWindow {
                 }
             }
 
-            Item {
-                Layout.fillWidth: true
-            }
-
             Button {
                 visible: root.model.connected
                 text: "Disconnect"
@@ -176,6 +173,76 @@ ApplicationWindow {
                 visible: !root.model.connected
                 text: "Connect"
                 onClicked: root.model.do_connect()
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            Button {
+                text: "About"
+                onClicked: aboutDialog.open()
+
+                Popup {
+                    id: aboutDialog
+                    parent: Overlay.overlay
+                    anchors.centerIn: parent
+                    modal: true
+                    focus: true
+                    topPadding: 16
+                    bottomPadding: 16
+                    leftPadding: 16
+                    rightPadding: 16
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+                    Overlay.modal: Rectangle {
+                        color: "#7f000000"
+                    }
+
+                    ColumnLayout {
+                        spacing: 8
+
+                        RowLayout {
+                            spacing: 8
+
+                            VectorImage {
+                                Layout.preferredHeight: 128
+                                Layout.preferredWidth: 128
+                                source: "qrc:///decent.svg"
+                            }
+
+                            ColumnLayout {
+                                Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                                Layout.rightMargin: 16
+
+                                Label {
+                                    text: root.model.app.name
+                                    font.pixelSize: 24
+                                    font.bold: true
+                                }
+
+                                Label {
+                                    text: "Version " + root.model.app.version
+                                }
+
+                                Label {
+                                    text: root.model.app.detailed_version
+                                    visible: root.model.app.version != root.model.app.detailed_version
+                                }
+
+                                Label {
+                                    text: "Built on " + root.model.app.build_date
+                                }
+                            }
+                        }
+
+                        Button {
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                            text: "Close"
+                            onClicked: aboutDialog.close()
+                        }
+                    }
+                }
             }
 
             Button {

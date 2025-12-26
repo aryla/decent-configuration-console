@@ -37,7 +37,7 @@ Button {
         bottomPadding: 16
         leftPadding: 16
         rightPadding: 16
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
             color: "#7f000000"

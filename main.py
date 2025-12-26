@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import QCoreApplication, QMetaObject, Qt
+from PySide6.QtCore import QMetaObject, Qt
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 

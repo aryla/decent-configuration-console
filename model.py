@@ -3,7 +3,8 @@ from typing import Callable
 
 import PySide6.QtCore
 import PySide6.QtQml
-from PySide6.QtCore import QObject, QPointF, Signal, Slot
+from PySide6.QtCore import QObject, QPointF, QResource, Signal, Slot
+from PySide6.QtGui import QGuiApplication
 
 from datatypes import (
     Changes,
@@ -308,6 +309,34 @@ class Panel(QObject):
 
 
 @QmlElement
+class AppInfo(QObject):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    @Property(str, constant=True, final=True)
+    def build_date(self):
+        return (
+            bytes(QResource(':/.build_date.txt').uncompressedData().data()).decode('utf-8').strip()
+        )
+
+    @Property(str, constant=True, final=True)
+    def detailed_version(self):
+        return (
+            bytes(QResource(':/.version_info.txt').uncompressedData().data())
+            .decode('utf-8')
+            .strip()
+        )
+
+    @Property(str, constant=True, final=True)
+    def name(self):
+        return QGuiApplication.applicationDisplayName()
+
+    @Property(str, constant=True, final=True)
+    def version(self):
+        return QGuiApplication.applicationVersion()
+
+
+@QmlElement
 class Model(QObject):
     alias_changed = Signal()
     connected_changed = Signal()
@@ -335,6 +364,7 @@ class Model(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._alias = 'Unnamed'
+        self._app = AppInfo(self)
         self._changes = Changes(0)
         self._connected = False
         self._hidmode = HidMode.Hidden
@@ -380,6 +410,10 @@ class Model(QObject):
             self.alias_set.emit(x)
             self._changes |= Changes.Alias
             self.changes_changed.emit()
+
+    @Property(AppInfo, constant=True, final=True)
+    def app(self):
+        return self._app
 
     @Property(bool, notify=connected_changed, final=True)
     def connected(self):
