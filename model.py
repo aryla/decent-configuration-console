@@ -1,5 +1,5 @@
 import math
-from typing import Callable
+from typing import Callable, TypeVar
 
 import PySide6.QtCore
 import PySide6.QtQml
@@ -25,8 +25,10 @@ QML_IMPORT_MAJOR_VERSION = 1
 
 # Workarounds for incomplete type annotations.
 
+_T = TypeVar('_T')
 
-def QmlElement[T](x: T) -> T:
+
+def QmlElement[_T](x: _T) -> _T:
     return PySide6.QtQml.QmlElement(x)  # pyright: ignore[reportReturnType]
 
 

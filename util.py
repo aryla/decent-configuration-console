@@ -1,11 +1,13 @@
 import functools
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 from PySide6.QtCore import QObject, QTimer, Slot
 
+_T = TypeVar('_T')
+
 
 def throttle_key(key_selector: Callable):
-    def decorator[T](func: T) -> T:
+    def decorator[_T](func: _T) -> _T:
         func._throttle_key = key_selector  # pyright: ignore[reportAttributeAccessIssue]
         return func
 
@@ -55,5 +57,5 @@ class _Throttle(QObject):
                 slot(*args)
 
 
-def Throttle[T: QObject](target: T) -> T:
+def Throttle[_T: QObject](target: _T) -> _T:
     return _Throttle(target)  # pyright: ignore[reportReturnType]
