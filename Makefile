@@ -12,5 +12,17 @@ all:
 run: all
 	uv run -- main.py
 
-.PHONY: all run
+package: all
+	uv run -- nuitka \
+		--mode=onefile  \
+		--enable-plugins=pyside6 \
+		--include-qt-plugins=qml \
+		--product-name='Decent Configuration Console' \
+		--product-version=$(VERSION) \
+		--linux-icon=decent.svg \
+		--main=main.py \
+		--output-dir=build \
+		--output-filename=decent-configuration-console
+
+.PHONY: all run package
 .DEFAULT_GOAL: all
