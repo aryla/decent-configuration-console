@@ -11,15 +11,15 @@ from util import Throttle
 
 
 def main():
+    model = Model()
+
     app = QGuiApplication(sys.argv)
-    app.setApplicationName('decent-configuration-console')
-    app.setApplicationVersion('0.1.0')
-    app.setApplicationDisplayName('Decent Configuration Console')
+    app.setApplicationName(model.app.name)
+    app.setApplicationVersion(model.app.version)
+    app.setApplicationDisplayName(model.app.title)
     app.setWindowIcon(QIcon(':/decent.svg'))
 
     pad = Pad()
-    model = Model()
-
     pad.alias.connect(model.pad_alias)
     pad.band.connect(model.pad_band)
     pad.changes.connect(model.pad_changes)

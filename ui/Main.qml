@@ -216,7 +216,7 @@ ApplicationWindow {
                                 Layout.rightMargin: 16
 
                                 Label {
-                                    text: root.model.app.name
+                                    text: root.model.app.title
                                     font.pixelSize: 24
                                     font.bold: true
                                 }
@@ -227,7 +227,7 @@ ApplicationWindow {
 
                                 Label {
                                     text: root.model.app.detailed_version
-                                    visible: root.model.app.version != root.model.app.detailed_version
+                                    visible: root.model.app.detailed_version != 'v' + root.model.app.version
                                 }
 
                                 Label {

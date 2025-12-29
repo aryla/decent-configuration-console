@@ -4,7 +4,6 @@ from typing import Callable, TypeVar
 import PySide6.QtCore
 import PySide6.QtQml
 from PySide6.QtCore import QObject, QPointF, QResource, Signal, Slot
-from PySide6.QtGui import QGuiApplication
 
 from datatypes import (
     Changes,
@@ -331,11 +330,15 @@ class AppInfo(QObject):
 
     @Property(str, constant=True, final=True)
     def name(self):
-        return QGuiApplication.applicationDisplayName()
+        return 'decent-configuration-console'
+
+    @Property(str, constant=True, final=True)
+    def title(self):
+        return 'Decent Configuration Console'
 
     @Property(str, constant=True, final=True)
     def version(self):
-        return QGuiApplication.applicationVersion()
+        return bytes(QResource(':/.version.txt').uncompressedData().data()).decode('utf-8').strip()
 
 
 @QmlElement

@@ -1,12 +1,13 @@
-RC := rc_resources.py
+VERSION := $(shell sed -n 's/version\s*=\s*"\([^"]\+\)"/\1/p' pyproject.toml)
+VERSION_INFO := $(shell git describe --dirty --tags)
+BUILD_DATE := $(shell date '+%Y-%m-%d')
 
-all: $(RC)
-
-rc_%.py: %.qrc qtquickcontrols2.conf decent.svg $(wildcard ui/*.qml)
-	git describe --all --dirty --long --tags > .version_info.txt
-	date '+%Y-%m-%d' > .build_date.txt
-	uv run -- pyside6-rcc $< -o $@
-	$(RM) .build_date.txt .version_info.txt
+all:
+	printf '%s\n' $(BUILD_DATE) > .build_date.txt
+	printf '%s\n' $(VERSION) > .version.txt
+	printf '%s\n' $(VERSION_INFO) > .version_info.txt
+	uv run -- pyside6-rcc resources.qrc -o rc_resources.py
+	$(RM) .build_date.txt .version.txt .version_info.txt
 
 run: all
 	uv run -- main.py
