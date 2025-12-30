@@ -54,6 +54,7 @@ class CurveModel(QObject):
         self._points = list[QPointF]()
         self._below = 0.025
         self._above = 0.025
+        self._min_delta_x = 0.05
 
     @Property(float, notify=below_changed, final=True)
     def below(self):
@@ -81,6 +82,10 @@ class CurveModel(QObject):
     def points(self):
         return self._points
 
+    @Property(float, constant=True, final=True)
+    def min_delta_x(self):
+        return self._min_delta_x
+
     @Property(bool, constant=True, final=True)
     def mirror(self):
         return self._mirror
@@ -88,16 +93,18 @@ class CurveModel(QObject):
     @Slot(int, float, float)
     def add_point(self, index: int, x: float, y: float):
         assert len(self._points) < 10
-        assert index == 0 or x >= self._points[index - 1].x() + 0.01
-        assert index == len(self._points) or x <= self._points[index].x() - 0.01
+        assert index == 0 or x >= self._points[index - 1].x() + self._min_delta_x
+        assert index == len(self._points) or x <= self._points[index].x() - self._min_delta_x
         self._points.insert(index, QPointF(x, y))
         self.points_changed.emit()
         self.point_added.emit(self._id, index, CurvePoint(x, y))
 
     @Slot(int, float, float)
     def move_point(self, index: int, x: float, y: float):
-        assert index == 0 or x >= self._points[index - 1].x() + 0.01
-        assert index == len(self._points) - 1 or x <= self._points[index + 1].x() - 0.01
+        assert index == 0 or x >= self._points[index - 1].x() + self._min_delta_x
+        assert (
+            index == len(self._points) - 1 or x <= self._points[index + 1].x() - self._min_delta_x
+        )
         self._points[index] = QPointF(x, y)
         self.points_changed.emit()
         self.point_moved.emit(self._id, index, CurvePoint(x, y))

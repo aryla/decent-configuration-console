@@ -185,7 +185,7 @@ Page {
 
         final readonly property int pointMinCount: 2
         final readonly property int pointMaxCount: 10
-        final readonly property double pointMinDeltaX: 0.011
+        final readonly property double pointMinDeltaX: root.panel.curve.min_delta_x + 0.001
         final readonly property double grabDistance: 0.1
         final readonly property int grabDistancePixels: 32
 
