@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.VectorImage
 
 import Model
 
@@ -205,10 +204,11 @@ ApplicationWindow {
                         RowLayout {
                             spacing: 8
 
-                            VectorImage {
+                            Image {
                                 Layout.preferredHeight: 128
                                 Layout.preferredWidth: 128
                                 source: "qrc:///decent.svg"
+                                smooth: false
                             }
 
                             ColumnLayout {
