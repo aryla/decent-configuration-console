@@ -46,6 +46,7 @@ class CurveModel(QObject):
     curve_set = Signal(PanelId, Curve)
     point_added = Signal(PanelId, int, CurvePoint)
     point_moved = Signal(PanelId, int, CurvePoint)
+    point_deleted = Signal(PanelId, int)
 
     def __init__(self, parent: QObject | None, id: PanelId, mirror: bool):
         super().__init__(parent)
@@ -114,13 +115,7 @@ class CurveModel(QObject):
         assert len(self._points) > 2
         self._points.pop(index)
         self.points_changed.emit()
-        self.curve_set.emit(
-            self._id,
-            Curve(
-                CurveBand(self._below, self._above),
-                [CurvePoint(p.x(), p.y()) for p in self._points],
-            ),
-        )
+        self.point_deleted.emit(self._id, index)
 
     @Slot()
     def reset_points(self):
@@ -363,6 +358,7 @@ class Model(QObject):
     changes_reverted = Signal(Changes)
     changes_saved = Signal(Changes)
     curve_point_added = Signal(PanelId, int, CurvePoint)
+    curve_point_deleted = Signal(PanelId, int)
     curve_point_moved = Signal(PanelId, int, CurvePoint)
     curve_reset = Signal(PanelId)
     curve_set = Signal(PanelId, Curve)
@@ -399,6 +395,7 @@ class Model(QObject):
             panel.curve.curve_set.connect(self.curve_set)
             panel.curve.point_moved.connect(self.curve_point_moved)
             panel.curve.point_added.connect(self.curve_point_added)
+            panel.curve.point_deleted.connect(self.curve_point_deleted)
 
             panel.range_set.connect(self._handle_change)
             panel.sensitivity_set.connect(self._handle_change)

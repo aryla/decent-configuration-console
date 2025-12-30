@@ -40,6 +40,7 @@ def main():
     model.changes_saved.connect(throttle.save_changes)
     model.curve_band_set.connect(throttle.set_band)
     model.curve_point_added.connect(throttle.add_curve_point)
+    model.curve_point_deleted.connect(throttle.delete_curve_point)
     model.curve_point_moved.connect(throttle.set_curve_point)
     model.curve_reset.connect(throttle.reset_curve)
     model.curve_set.connect(throttle.set_curve)

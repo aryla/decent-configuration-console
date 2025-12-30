@@ -203,6 +203,12 @@ class Pad(QObject):
     def add_curve_point(self, panel: PanelId, index: int, p: CurvePoint):
         self.usb.send(struct.pack('< BBBff', 0x88, panel.value, index, p.x, p.y))
 
+    @Slot(PanelId, int)
+    @throttle_key(lambda panel, index: (panel, index))
+    @handle_errors
+    def delete_curve_point(self, panel: PanelId, index: int):
+        self.usb.send(struct.pack('< BBB', 0x89, panel.value, index))
+
     @Slot(PanelId, int, CurvePoint)
     @throttle_key(lambda panel, index, _: (panel, index))
     @handle_errors
