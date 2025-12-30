@@ -1,3 +1,5 @@
+import os
+import sys
 from ctypes import (
     CDLL,
     POINTER,
@@ -93,7 +95,10 @@ class Usb:
     def __init__(self):
         self.context = c_void_p()
         self.device = c_void_p()
-        self.libusb = CDLL('libusb-1.0.so.0')
+        if sys.platform == 'win32':
+            self.libusb = CDLL(os.path.dirname(__file__) + '\\libusb-1.0.dll')
+        else:
+            self.libusb = CDLL('libusb-1.0.so.0')
         Usb._setup_types(self.libusb)
 
     def connect(self):
@@ -126,8 +131,10 @@ class Usb:
             self.libusb.libusb_set_configuration(self.device, self.CONFIGURATION)
 
         try:
+            # Raises a NotFoundError if the kernel driver is already detached.
+            # Raises a NotSupportedError on Windows.
             self.libusb.libusb_detach_kernel_driver(self.device, self.INTERFACE)
-        except NotFoundError:
+        except (NotFoundError, NotSupportedError):
             pass
 
         # Check configuration after claiming the interface.
