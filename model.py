@@ -411,14 +411,16 @@ class Model(QObject):
 
     @alias.setter
     def alias(self, x):
-        if len(x.encode('utf-8')) > 30:
-            self.alias_changed.emit()
-        elif self._alias != x:
+        if not x:
+            x = 'Unnamed'
+        while len(x.encode('utf-8')) > 30:
+            x = x[:-1]
+        if self._alias != x:
             self._alias = x
-            self.alias_changed.emit()
             self.alias_set.emit(x)
             self._changes |= Changes.Alias
             self.changes_changed.emit()
+        self.alias_changed.emit()
 
     @Property(AppInfo, constant=True, final=True)
     def app(self):
