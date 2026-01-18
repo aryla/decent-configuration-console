@@ -19,7 +19,13 @@ def main():
     app.setApplicationDisplayName(model.app.title)
     app.setWindowIcon(QIcon(':/decent.svg'))
 
-    pad = Pad()
+    if '--fake-pad' in sys.argv[1:]:
+        from fakepad import FakePad
+
+        pad = FakePad()
+    else:
+        pad = Pad()
+
     pad.alias.connect(model.pad_alias)
     pad.band.connect(model.pad_band)
     pad.changes.connect(model.pad_changes)
