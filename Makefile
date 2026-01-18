@@ -1,28 +1,12 @@
-VERSION := $(shell sed -n 's/version\s*=\s*"\([^"]\+\)"/\1/p' pyproject.toml)
-VERSION_INFO := $(shell git describe --dirty --tags)
-BUILD_DATE := $(shell date '+%Y-%m-%d')
+build:
+	uv run build.py build
 
-all:
-	printf '%s\n' $(BUILD_DATE) > .build_date.txt
-	printf '%s\n' $(VERSION) > .version.txt
-	printf '%s\n' $(VERSION_INFO) > .version_info.txt
-	uv run -- pyside6-rcc resources.qrc -o rc_resources.py
-	$(RM) .build_date.txt .version.txt .version_info.txt
+package:
+	uv sync --extra build
+	uv run build.py package
 
-run: all
-	uv run -- main.py
+run: build
+	uv run main.py
 
-package: all
-	uv run -- nuitka \
-		--mode=onefile  \
-		--enable-plugins=pyside6 \
-		--include-qt-plugins=qml \
-		--product-name='Decent Configuration Console' \
-		--product-version=$(VERSION) \
-		--linux-icon=decent.svg \
-		--main=main.py \
-		--output-dir=build \
-		--output-filename=decent-configuration-console
-
-.PHONY: all run package
-.DEFAULT_GOAL: all
+.PHONY: build package run
+.DEFAULT_GOAL: build

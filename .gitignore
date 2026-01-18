@@ -12,4 +12,4 @@ wheels/
 # Generated code
 /ui/ui_*.py
 /rc_*.py
-/.version_info.txt
+/libusb-1.0.dll

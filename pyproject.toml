@@ -13,12 +13,12 @@ dependencies = [
 [project.optional-dependencies]
 build = [
     "nuitka>=2.8.9",
-    "patchelf>=0.17.2.4",
+    "patchelf>=0.17.2.4 ; platform_system == \"Linux\"",
 ]
 
 [tool.ruff]
 line-length = 100
-ignore = ["E701"]
+lint.ignore = ["E701"]
 
 [tool.ruff.format]
 quote-style = "single"
