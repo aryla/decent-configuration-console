@@ -202,7 +202,7 @@ ApplicationWindow {
                         spacing: 8
 
                         RowLayout {
-                            spacing: 8
+                            spacing: 16
 
                             Image {
                                 Layout.preferredHeight: 128
@@ -214,23 +214,44 @@ ApplicationWindow {
                             ColumnLayout {
                                 Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                                 Layout.rightMargin: 16
+                                spacing: 2
 
                                 Label {
                                     text: root.model.app.title
                                     font.pixelSize: 24
                                     font.bold: true
+                                    bottomPadding: 8
                                 }
 
                                 Label {
-                                    text: "Version " + root.model.app.version
+                                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                    text: "<a href=\"https://github.com/aryla/decent-configuration-console\">github.com/aryla/decent-configuration-console</a>"
+                                    onLinkActivated: link => Qt.openUrlExternally(link)
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        acceptedButtons: Qt.NoButton
+                                    }
+                                }
+
+                                Row {
+                                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+
+
+                                    Label {
+                                        text: "Version " + root.model.app.version
+                                    }
+
+                                    Label {
+                                        text: " (" + root.model.app.detailed_version + ")"
+                                        visible: root.model.app.detailed_version != '' && root.model.app.detailed_version != 'v' + root.model.app.version
+                                    }
+
                                 }
 
                                 Label {
-                                    text: root.model.app.detailed_version
-                                    visible: root.model.app.detailed_version != 'v' + root.model.app.version
-                                }
-
-                                Label {
+                                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                                     text: "Built on " + root.model.app.build_date
                                 }
                             }
