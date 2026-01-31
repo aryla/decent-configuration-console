@@ -9,6 +9,12 @@ Button {
     property int profileId
     property Model model
     checked: root.model.profile == root.profileId
+    icon.source: checked ? "qrc:///icons/circle-fill.svg" : "qrc:///icons/circle-stroke.svg"
+    icon.height: 8
+    icon.width: 8
+    display: AbstractButton.TextBesideIcon
+    leftPadding: 4
+    rightPadding: 4
 
     hoverEnabled: true
     ToolTip.visible: hovered

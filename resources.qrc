@@ -10,6 +10,15 @@
     <file>decent.svg</file>
 </qresource>
 <qresource prefix="/">
+    <file>icons/circle-fill.svg</file>
+    <file>icons/circle-stroke.svg</file>
+    <file>icons/information.svg</file>
+    <file>icons/maximize.svg</file>
+    <file>icons/minimize.svg</file>
+    <file>icons/power.svg</file>
+    <file>icons/unlink.svg</file>
+</qresource>
+<qresource prefix="/">
     <file>qtquickcontrols2.conf</file>
 </qresource>
 <qresource prefix="/">

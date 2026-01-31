@@ -44,9 +44,8 @@ Page {
         implicitHeight: 36
         height: implicitHeight
         Label {
-            anchors.baseline: maximizeButton.baseline
+            anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            topPadding: 8
             text: root.panel.name
         }
 
@@ -69,11 +68,14 @@ Page {
             id: maximizeButton
             x: parent.width - 8 - implicitWidth
             y: parent.y + 8
-            implicitWidth: implicitHeight
+            implicitWidth: 28
+            implicitHeight: 28
             height: implicitHeight
             width: implicitWidth
             visible: !root.isMaximized
-            text: "M"
+            text: "Maximize"
+            icon.source: "qrc:///icons/maximize.svg"
+            display: AbstractButton.IconOnly
             onClicked: root.maximized()
 
             hoverEnabled: true
@@ -85,10 +87,14 @@ Page {
         Button {
             x: parent.width - 8 - implicitWidth
             y: parent.y + 8
+            implicitWidth: 28
+            implicitHeight: 28
             height: implicitHeight
             width: implicitWidth
             visible: root.isMaximized
-            text: "Back"
+            text: "Show all panels"
+            icon.source: "qrc:///icons/minimize.svg"
+            display: AbstractButton.IconOnly
             onClicked: root.unmaximized()
 
             hoverEnabled: true

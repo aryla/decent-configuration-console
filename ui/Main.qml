@@ -62,13 +62,15 @@ ApplicationWindow {
 
             Label {
                 visible: root.model.connected
-                text: "Pad: "
+                text: "Pad"
+                leftPadding: 8
+                rightPadding: 8
             }
             Button {
                 visible: root.model.connected
                 text: root.model.alias
-                font.family: "monospace"
                 onClicked: padInfo.open()
+                implicitHeight: 28
 
                 hoverEnabled: true
                 ToolTip.visible: hovered
@@ -104,20 +106,21 @@ ApplicationWindow {
                             uniformCellHeights: true
 
                             Label {
-                                text: "Alias:"
+                                text: "Alias"
+                                rightPadding: 16
                             }
 
                             TextField {
                                 Layout.fillWidth: true
                                 text: root.model.alias
                                 maximumLength: 30
-                                font.family: "monospace"
                                 onEditingFinished: root.model.alias = text
                                 placeholderText: "Unnamed"
                             }
 
                             Label {
-                                text: "Mode:"
+                                text: "Mode"
+                                rightPadding: 16
                             }
 
                             Row {
@@ -142,12 +145,12 @@ ApplicationWindow {
                             }
 
                             Label {
-                                text: "Serial:"
+                                text: "Serial"
+                                rightPadding: 16
                             }
 
                             Label {
                                 text: root.model.serial
-                                font.family: "monospace"
                             }
                         }
 
@@ -165,7 +168,16 @@ ApplicationWindow {
             Button {
                 visible: root.model.connected
                 text: "Disconnect"
+                icon.source: "qrc:///icons/unlink.svg"
+                display: AbstractButton.IconOnly
+                implicitWidth: 28
+                implicitHeight: 28
                 onClicked: root.model.do_disconnect()
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: "Disconnect"
             }
 
             Button {
@@ -180,7 +192,16 @@ ApplicationWindow {
 
             Button {
                 text: "About"
+                icon.source: "qrc:///icons/information.svg"
+                display: AbstractButton.IconOnly
+                implicitWidth: 28
+                implicitHeight: 28
                 onClicked: aboutDialog.open()
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: "About"
 
                 Popup {
                     id: aboutDialog
@@ -225,6 +246,11 @@ ApplicationWindow {
 
                                 Label {
                                     Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                    text: "Copyright © 2026 Arttu Ylä-Outinen"
+                                }
+
+                                Label {
+                                    Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                                     text: "<a href=\"https://github.com/aryla/decent-configuration-console\">github.com/aryla/decent-configuration-console</a>"
                                     onLinkActivated: link => Qt.openUrlExternally(link)
 
@@ -238,7 +264,6 @@ ApplicationWindow {
                                 Row {
                                     Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
-
                                     Label {
                                         text: "Version " + root.model.app.version
                                     }
@@ -247,13 +272,50 @@ ApplicationWindow {
                                         text: " (" + root.model.app.detailed_version + ")"
                                         visible: root.model.app.detailed_version != '' && root.model.app.detailed_version != 'v' + root.model.app.version
                                     }
-
                                 }
 
                                 Label {
                                     Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                                     text: "Built on " + root.model.app.build_date
                                 }
+                            }
+                        }
+
+                        Item {
+                            Layout.preferredHeight: 8
+                        }
+
+                        ColumnLayout {
+                            Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                            Layout.rightMargin: 16
+                            spacing: 2
+
+                            Label {
+                                font.pixelSize: 16
+                                text: "Libraries"
+                            }
+
+                            Label {
+                                text: "libusb 1.0"
+                            }
+
+                            Label {
+                                text: "PySide6 6.10.1"
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                            Layout.rightMargin: 16
+                            spacing: 2
+
+                            Label {
+                                font.pixelSize: 16
+                                text: "Icons"
+                            }
+
+                            Label {
+                                text: "Carbon Design System 11.100.0"
                             }
                         }
 
@@ -268,7 +330,21 @@ ApplicationWindow {
 
             Button {
                 text: "Quit"
-                onClicked: root.close()
+                icon.source: "qrc:///icons/power.svg"
+                display: AbstractButton.IconOnly
+                implicitWidth: 28
+                implicitHeight: 28
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: "Quit\n" + action.shortcut
+
+                action: Action {
+                    text: "Quit"
+                    shortcut: "Ctrl+Q"
+                    onTriggered: root.close()
+                }
             }
         }
     }
@@ -298,7 +374,7 @@ ApplicationWindow {
                     rightPadding: 16
 
                     background: Rectangle {
-                        radius: 8
+                        radius: 2
                         color: root.palette.active.window
                     }
 

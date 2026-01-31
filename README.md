@@ -4,9 +4,9 @@ Unofficial configuration app for the BlueCombo Halfpad.
 Runs on Linux and Windows.
 
 <img
-  src="https://i.imgur.com/BtWCnAN.png" width="50%" alt="Screenshot of the panels overview"
+  src="https://i.imgur.com/F7vazBE.png" width="50%" alt="Screenshot of the panels overview"
 /><img
-  src="https://i.imgur.com/u1Yfc4v.png" width="50%" alt="Screenshot of the single panel view"
+  src="https://i.imgur.com/RQiaAKJ.png" width="50%" alt="Screenshot of the single panel view"
 />
 
 ## Features
