@@ -3,18 +3,22 @@
 Unofficial configuration app for the BlueCombo Halfpad.
 Runs on Linux and Windows.
 
-Features:
+<img
+  src="https://i.imgur.com/BtWCnAN.png" width="50%" alt="Screenshot of the panels overview"
+/><img
+  src="https://i.imgur.com/u1Yfc4v.png" width="50%" alt="Screenshot of the single panel view"
+/>
+
+## Features
 - Display sensor values
-- Change panel sensitivity
-- Change sensor ranges
-- Edit threshold curve
-- Change hysteresis band width
+- Change sensor ranges and sensitivity
+- Edit threshold curve and hysteresis band
 - Switch profiles
-- Change pad HID mode (joystick/keyboard/hidden)
+- Change pad device mode (joystick/keyboard/hidden)
 - Change pad alias
 
 Requires pad firmware version 0.0.4.
-This app does not support upgrading pad firmware.
+This app does not support upgrading the firmware.
 
 ## Linux setup
 
